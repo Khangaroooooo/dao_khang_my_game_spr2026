@@ -43,7 +43,9 @@ class Spritesheet:
         image = pg.Surface((width, height))
         image.blit(self.spritesheet, (0, 0), (x, y, width, height))
         new_image = pg.transform.scale(image, (width, height))
-        
+        image = new_image
+        return image
+
 
 #creates countdown timer for a cooldown
 class Cooldown:
@@ -106,6 +108,7 @@ class Player(Sprite):
         self.groups = game.all_sprites
         Sprite.__init__(self, self.groups)
         self.game = game
+        self.spritesheet = Spritesheet(path.join(self.game.img_dir, "spriteSheet.png"))
         self.image = pg.Surface((TILESIZE, TILESIZE)) #Settings - TILESIZE
         self.image.fill(WHITE) #Settings - WHITE
         self.rect = self.image.get_rect()
@@ -126,6 +129,20 @@ class Player(Sprite):
             self.vel.y = + PLAYER_SPEED
         if self.vel.x != 0 and self.vel.y != 0:
             self.vel *= 0.7071
+
+    def load_image(self):
+        self.standing_frames = [self.spritesheet.get_image(0, 0, TILESIZE, TILESIZE), 
+                                self.spritesheet.get_image(TILESIZE, 0, TILESIZE, TILESIZE)]
+        
+        for frame in self.standing_frames:
+            frame.set_colorkey(BLACK)
+
+    def animate(self):
+        now = pg.time.get_ticks()
+        if not self.jumping and not self.walking:
+            if now - self.last_update > 350:
+                self.last_update = now
+                self.current_frame = (self.current_frame + 1) % len(self.standing_frames)
 
     def update(self):
         self.get_keys()
