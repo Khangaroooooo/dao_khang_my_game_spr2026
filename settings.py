@@ -1,3 +1,5 @@
+import pygame as pg
+
 WIDTH = 800
 HEIGHT = 600
 TITLE = "The Game"
@@ -7,6 +9,7 @@ TILESIZE = 32
 
 #player values
 PLAYER_SPEED = 280
+PLAYER_HIT_RECT = pg.Rect(0, 0, TILESIZE, TILESIZE)
 
 #mob values
 MOB_SPEED = 120
