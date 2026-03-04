@@ -108,7 +108,8 @@ class Player(Sprite):
         self.groups = game.all_sprites
         Sprite.__init__(self, self.groups)
         self.game = game
-        self.spritesheet = Spritesheet(path.join(self.game.img_dir, "New Piskel.png"))
+        self.standing_spritesheet = Spritesheet(path.join(self.game.img_dir, "standing.png"))
+        self.walking_spritesheet = Spritesheet(path.join(self.game.img_dir, "walking.png"))
         self.load_images()
         self.image = pg.Surface((TILESIZE, TILESIZE))
         self.image.fill(WHITE)
@@ -120,14 +121,17 @@ class Player(Sprite):
         self.walking = False
         self.last_update = 0
         self.current_frame = 0
+        self.dir = 0
 
     def get_keys(self):
         self.vel = vec(0,0)
         keys = pg.key.get_pressed()
         if keys[pg.K_a]:
             self.vel.x = -PLAYER_SPEED
+            self.dir = "left"
         if keys[pg.K_d]:
             self.vel.x = PLAYER_SPEED
+            self.dir = "right"
         if keys[pg.K_w]:
             self.vel.y = -PLAYER_SPEED
         if keys[pg.K_s]:
@@ -139,10 +143,17 @@ class Player(Sprite):
 
     def load_images(self):
         self.standing_frames = []
-        for i in range(18):  # 18 frames total
-            frame = self.spritesheet.get_image(i * 32, 0, 32, 32)
+        for i in range(4):  # 18 frames total
+            frame = self.standing_spritesheet.get_image(i * 32, 0, 32, 32)
             frame.set_colorkey(BLACK)
             self.standing_frames.append(frame)
+
+        self.walking_frames = []
+        for j in range(4):  # 4 rows
+            for i in range(4):  # 16 frames total
+                frame = self.walking_spritesheet.get_image(i * 32, j * 32, 32, 32)
+                frame.set_colorkey(BLACK)
+                self.walking_frames.append(frame)
         
         #self.standing_frames = [self.spritesheet.get_image(0, 0, TILESIZE, TILESIZE), 
         #                        self.spritesheet.get_image(TILESIZE, 0, TILESIZE, TILESIZE)]
@@ -162,11 +173,16 @@ class Player(Sprite):
         elif self.walking:
             if now - self.last_update > 175:
                 self.last_update = now
-                self.current_frame = (self.current_frame + 1) % len(self.standing_frames)
+                self.current_frame = (self.current_frame + 1) % len(self.walking_frames)
                 bottom = self.rect.bottom
-                self.image = self.standing_frames[self.current_frame]
-                self.rect = self.image.get_rect()
-                self.rect.bottom = bottom
+                if self.dir == "left":
+                    self.image = self.walking_frames[self.current_frame]
+                    self.rect = self.image.get_rect()
+                    self.rect.bottom = bottom
+                if self.dir == "right":
+                    self.image = pg.transform.flip(self.walking_frames[self.current_frame], True, False)
+                    self.rect = self.image.get_rect()
+                    self.rect.bottom = bottom
 
 
     def update(self):
