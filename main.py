@@ -4,6 +4,7 @@
 import pygame as pg
 import sys
 from os import path
+import heapq
 from settings import *
 from sprites import *
 from utils import *
@@ -116,7 +117,7 @@ class Player(Sprite):
         self.rect = self.image.get_rect()
         self.vel = vec(0,0)
         self.pos = vec(x,y) * TILESIZE
-        self.hit_rect = PLAYER_HIT_RECT
+        self.hit_rect = PLAYER_HIT_RECT.copy()
         self.jumping = False
         self.walking = False
         self.last_update = 0
@@ -126,6 +127,9 @@ class Player(Sprite):
     def get_keys(self):
         self.vel = vec(0,0)
         keys = pg.key.get_pressed()
+        if keys[pg.K_f]:
+            self.vel.x = -PLAYER_SPEED
+            p = Projectile(self.game, self.rect.x, self.rect.y)
         if keys[pg.K_a]:
             self.vel.x = -PLAYER_SPEED
             self.dir = "left"
@@ -198,36 +202,36 @@ class Player(Sprite):
         self.rect.center = self.hit_rect.center
 
 
-class Mob(Sprite):
-    def __init__(self, game, x, y):
-        self.groups = game.all_sprites
-        Sprite.__init__(self, self.groups)
-        self.game = game
-        self.image = pg.Surface((TILESIZE, TILESIZE)) #Settings - TILESIZE
-        self.image.fill(RED) #Settings - WHITE
-        self.rect = self.image.get_rect()
-        self.vel = vec(0, 0)
-        self.pos = vec(x, y) * TILESIZE #32 - Settings - TILESIZE
-        self.hit_rect = MOB_HIT_RECT ###
+#class Mob(Sprite):
+#    def __init__(self, game, x, y):
+#        self.groups = game.all_sprites
+#        Sprite.__init__(self, self.groups)
+#        self.game = game
+#        self.image = pg.Surface((TILESIZE, TILESIZE)) #Settings - TILESIZE
+#       self.image.fill(RED) #Settings - WHITE
+#        self.rect = self.image.get_rect()
+#        self.vel = vec(0, 0)
+#        self.pos = vec(x, y) * TILESIZE #32 - Settings - TILESIZE
+#        self.hit_rect = MOB_HIT_RECT.copy() ####
 
-    def update(self):
-        # Calculate direction vector from mob to player
-        direction = self.game.player.pos - self.pos
-        # Normalize and scale by mob speed (only if distance > 0)
-        if direction.length() > 0:
-            #.normalize returns new unit vector, consistent movement
-            direction = direction.normalize() * MOB_SPEED
-            self.vel = direction
+#    def update(self):
+#        # Calculate direction vector from mob to player
+#        direction = self.game.player.pos - self.pos
+#        # Normalize and scale by mob speed (only if distance > 0)
+#        if direction.length() > 0:
+#            #.normalize returns new unit vector, consistent movement
+#            direction = direction.normalize() * MOB_SPEED
+#            self.vel = direction
 
-        self.pos += self.vel * self.game.dt
+#        self.pos += self.vel * self.game.dt
 
-        self.hit_rect.centerx = self.pos.x                          ###
-        collide_with_walls(self, self.game.all_walls, 'x')          ###
-        self.hit_rect.centery = self.pos.y                          ###
-        collide_with_walls(self, self.game.all_walls, 'y')          ###
+#        self.hit_rect.centerx = self.pos.x                          ###
+#        collide_with_walls(self, self.game.all_walls, 'x')          ###
+#        self.hit_rect.centery = self.pos.y                          ###
+#        collide_with_walls(self, self.game.all_walls, 'y')          ####
 
-        self.pos = vec(self.hit_rect.center)  # ← Sync pos BACK from hit_rect
-        self.rect.center = self.hit_rect.center  # ← Then sync rect
+#        self.pos = vec(self.hit_rect.center)  # ← Sync pos BACK from hit_rect
+#        self.rect.center = self.hit_rect.center  # ← Then sync rect
 
         #hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
         #self.rect.center = self.pos
@@ -276,6 +280,23 @@ class Coin(Sprite):
         if self.rect.colliderect(self.game.player.hit_rect):
             self.kill()
 
+class Projectile(Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.all_projectiles
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE, TILESIZE)) #Settings - TILESIZE
+        self.image.fill(RED) #Settings - WHITE
+        self.rect = self.image.get_rect()
+        self.vel = vec(1, 0) * TILESIZE
+        self.pos = vec(x, y) * TILESIZE #32 - Settings - TILESIZE
+        self.speed = 10
+
+    def update(self):
+        hits = pg.sprite.spritecollide(self, self.game.all_walls, True)
+        self.pos += self.speed * self.vel
+        self.rect.center = self.pos
+
 #Main.py code
 class Game:
     def __init__(self):
@@ -305,6 +326,7 @@ class Game:
         self.all_walls = pg.sprite.Group()
         self.all_mobs = pg.sprite.Group()
         self.all_coins = pg.sprite.Group()
+        self.all_projectiles = pg.sprite.Group()
 
         for row, tiles in enumerate(self.map.data):
             for col, tile in enumerate(tiles):
