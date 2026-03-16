@@ -10,7 +10,7 @@ class Room:
         self.id = room_id
         self.exits = {}
         self.grid_pos = (0, 0)
-        self.movement = random.choice(MOVEMENT_MODES)
+        self.movement = random.choice(MOVEMENT_MODES) # edit later; just placeholder
 
 # source: https://tiendil.org/en/posts/dungeon-generation-from-simple-to-complex
 def generate_dungeon(num_rooms):
