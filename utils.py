@@ -1,16 +1,18 @@
 import pygame as pg
 import random
+import os
 from settings import *
 
 vec = pg.math.Vector2
 
+img_folder = os.path.join(os.path.dirname(__file__), 'images')
 
 class Room:
     def __init__(self, room_id):
         self.id = room_id
         self.exits = {}
         self.grid_pos = (0, 0)
-        self.movement = random.choice(MOVEMENT_MODES) # edit later; just placeholder
+        #self.movement = random.choice(MOVEMENT_MODES) # edit later; just placeholder
 
 # source: https://tiendil.org/en/posts/dungeon-generation-from-simple-to-complex
 def generate_dungeon(num_rooms):
@@ -134,9 +136,9 @@ def draw_room(surface, room, walls, font):
     if "east" in room.exits:
         pg.draw.rect(surface, FLOOR_COLOR, (ox + W - wt, vy - gap_px//2, wt, gap_px))
 
-    label = font.render(room.movement, True, (120, 120, 120))
-    surface.blit(label, (ox + W//2 - label.get_width()//2,
-                         oy + H//2 - label.get_height()//2))
+    #label = font.render(room.movement, True, (120, 120, 120))
+    #surface.blit(label, (ox + W//2 - label.get_width()//2,
+    #                     oy + H//2 - label.get_height()//2))
 
 # source: https://www.pygame.org/docs/ref/rect.html
 def entry_pos(direction):

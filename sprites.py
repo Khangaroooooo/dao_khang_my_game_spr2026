@@ -1,10 +1,23 @@
 import pygame as pg
 from pygame.sprite import Sprite
+import os
 from settings import *
 from utils import *
 
 
 vec = pg.math.Vector2
+WALL_IMG = pg.image.load(os.path.join(img_folder, 'WallResized.png'))
+
+class Wall(Sprite):
+    def __init__(self, game, rect):
+        self.groups = game.all_sprites, game.wall_sprites
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.rect = rect.copy()
+        self.image = pg.Surface((rect.width, rect.height))
+        for y in range(0, rect.height, TILESIZE):
+            for x in range(0, rect.width, TILESIZE):
+                self.image.blit(WALL_IMG, (x, y))
 
 
 def collide_hit_rect(one, two):

@@ -19,9 +19,10 @@ class Game:
 
     def new(self):
         self.all_sprites = pg.sprite.Group()
+        self.wall_sprites = pg.sprite.Group()
         self.rooms = generate_dungeon(10)
         self.current_id = 0
-        self.walls = build_walls(self.rooms[0].exits)
+        self._build_walls(self.rooms[0].exits)
 
         cx, cy = centre_pos()
         self.player = Player(self, cx, cy)
@@ -31,6 +32,14 @@ class Game:
 
         self.playing = True
         self.run()
+
+    def _build_walls(self, exits):
+        """Clear old wall sprites and create new ones for the current room."""
+        self.wall_sprites.empty()
+        rects = build_walls(exits)
+        self.walls = rects
+        for r in rects:
+            Wall(self, r)
 
     def run(self):
         while self.playing:
@@ -63,7 +72,7 @@ class Game:
     def _travel(self, direction):
         next_id = self.rooms[self.current_id].exits[direction]
         self.current_id = next_id
-        self.walls = build_walls(self.rooms[next_id].exits)
+        self._build_walls(self.rooms[next_id].exits)
         nx, ny = entry_pos(direction)
         self.player.pos = vec(nx, ny)
         self.player.hit_rect.center = (nx, ny)
@@ -72,7 +81,8 @@ class Game:
     def draw(self):
         self.screen.fill(DARK_GRAY)
         draw_room(self.screen, self.rooms[self.current_id], self.walls, self.font)
-        self.all_sprites.draw(self.screen)
+        self.wall_sprites.draw(self.screen)
+        self.screen.blit(self.player.image, self.player.rect)
         self.transition.draw(self.screen)
         pg.display.flip()
 
@@ -82,11 +92,11 @@ class Game:
         title = font_title.render(TITLE, True, WHITE)
         self.screen.blit(title, (WIDTH // 2 - title.get_width() // 2, HEIGHT // 4))
 
-        btn_w, btn_h = 160, 48
-        btn = pg.Rect(WIDTH // 2 - btn_w // 2, HEIGHT // 2 - btn_h // 2, btn_w, btn_h)
-        pg.draw.rect(self.screen, GRAY, btn)
+        start_btn_w, start_btn_h = 160, 48
+        start_btn = pg.Rect(WIDTH // 2 - start_btn_w // 2, HEIGHT // 2 - start_btn_h // 2, start_btn_w, start_btn_h)
+        pg.draw.rect(self.screen, GRAY, start_btn)
         lbl = self.font.render("Start", True, WHITE)
-        self.screen.blit(lbl, lbl.get_rect(center=btn.center))
+        self.screen.blit(lbl, lbl.get_rect(center=start_btn.center))
         pg.display.flip()
 
         waiting = True
@@ -97,7 +107,7 @@ class Game:
                     self.running = False
                     waiting = False
                 if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-                    if btn.collidepoint(event.pos):
+                    if start_btn.collidepoint(event.pos):
                         waiting = False
 
 
