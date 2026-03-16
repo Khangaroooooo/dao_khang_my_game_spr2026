@@ -12,7 +12,7 @@ class Room:
         self.grid_pos = (0, 0)
         self.movement = random.choice(MOVEMENT_MODES)
 
-
+# source: https://tiendil.org/en/posts/dungeon-generation-from-simple-to-complex
 def generate_dungeon(num_rooms):
     rooms = {}
     grid = {}
@@ -60,12 +60,12 @@ def generate_dungeon(num_rooms):
 
     return rooms
 
-
+# source: https://www.redblobgames.com/grids/parts/#neighbors
 def _neighbour(col, row, d):
     return {"north": (col, row-1), "south": (col, row+1),
             "east": (col+1, row), "west": (col-1, row)}[d]
 
-
+# source: https://nerdparadise.com/programming/pygame/part4
 def build_walls(exits):
     T = TILESIZE
     ox, oy = ROOM_OX, ROOM_OY
@@ -105,7 +105,7 @@ def build_walls(exits):
 
     return walls
 
-
+# source: https://www.youtube.com/watch?v=WC6Yuzw7IYc
 def draw_room(surface, room, walls, font):
     T = TILESIZE
     ox, oy = ROOM_OX, ROOM_OY
@@ -138,7 +138,7 @@ def draw_room(surface, room, walls, font):
     surface.blit(label, (ox + W//2 - label.get_width()//2,
                          oy + H//2 - label.get_height()//2))
 
-
+# source: https://www.pygame.org/docs/ref/rect.html
 def entry_pos(direction):
     ox, oy = ROOM_OX, ROOM_OY
     W, H = ROOM_PX_W, ROOM_PX_H
@@ -155,7 +155,7 @@ def entry_pos(direction):
 def centre_pos():
     return ROOM_OX + ROOM_PX_W // 2, ROOM_OY + ROOM_PX_H // 2
 
-
+# source: https://www.geeksforgeeks.org/python/collision-detection-in-pygame/
 def touched_exit(player_rect, exits):
     ox, oy = ROOM_OX, ROOM_OY
     W, H = ROOM_PX_W, ROOM_PX_H
