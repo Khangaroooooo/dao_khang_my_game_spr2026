@@ -20,9 +20,9 @@ class Game:
     def new(self):
         self.all_sprites = pg.sprite.Group()
         self.wall_sprites = pg.sprite.Group()
-        self.rooms = generate_dungeon(10)
+        self.rooms = generate_dungeon(10) #amt of rooms
         self.current_id = 0
-        self._build_walls(self.rooms[0].exits)
+        self._build_walls(self.rooms[0].exits) #builds it depending on the amt of exits in room i
 
         cx, cy = centre_pos()
         self.player = Player(self, cx, cy)
@@ -34,7 +34,7 @@ class Game:
         self.run()
 
     def _build_walls(self, exits):
-        """Clear old wall sprites and create new ones for the current room."""
+        # Clear old wall sprites and create new ones for the current room
         self.wall_sprites.empty()
         rects = build_walls(exits)
         self.walls = rects

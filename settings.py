@@ -34,7 +34,7 @@ DOOR_TILES = 3
 
 MOVEMENT_MODES = ["Free Movement", "Platformer", "Turn-Based"]
 
-DIRS = ["north", "south", "east", "west"]
+DIRS = ["north", "south", "east", "west"] #for door positions
 OPPOSITE = {"north": "south", "south": "north", "east": "west", "west": "east"}
 
 TRANSITION_FRAMES = 30  # ~0.5s at 60fps
