@@ -51,6 +51,7 @@ class Player(Sprite):
         Sprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((TILESIZE, TILESIZE))
+
         self.image.fill(PLAYER_COLOR)
         self.rect = self.image.get_rect()
         self.vel = vec(0, 0)
