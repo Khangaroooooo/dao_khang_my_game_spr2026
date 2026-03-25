@@ -130,7 +130,7 @@ class Player(Sprite):
 
     def _load_images(self):
         idle_path = os.path.join(img_folder, 'Idle.png')
-        walk_path = os.path.join(img_folder, 'Walk.png')
+        walk_path = os.path.join(img_folder, 'MainGuySpriteSheet.png')
 
         self.idle_frames = self._slice_sheet(idle_path, self.IDLE_COLS, self.IDLE_ROWS)
 
@@ -140,8 +140,8 @@ class Player(Sprite):
         # Rows are sliced in the order they appear in Walk.png top-to-bottom.
         # "Left" reuses "Right" frames flipped horizontally — no separate row needed.
         self.walk_frames = {
-            "Down":  self._slice_row(walk_sheet, 0, self.WALK_COLS),
-            "Up":    self._slice_row(walk_sheet, 1, self.WALK_COLS),
+            "Down":  self._slice_row(walk_sheet, 0, self.WALK_COLS),  # front (first row)
+            "Up":    self._slice_row(walk_sheet, 4, self.WALK_COLS),  # back (last row)
             "Right": self._slice_row(walk_sheet, 2, self.WALK_COLS),
             "Left":  [pg.transform.flip(f, True, False)
                       for f in self._slice_row(walk_sheet, 2, self.WALK_COLS)],
