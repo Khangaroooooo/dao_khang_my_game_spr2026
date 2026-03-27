@@ -45,11 +45,7 @@ def collide_with_walls(sprite, walls, dir):
             sprite.vel.y = 0
             sprite.hit_rect.centery = sprite.pos.y
 
-
-# ---------------------------------------------------------------------------
-# Simple state machine (mirrors the pasted code's StateMachine pattern)
-# ---------------------------------------------------------------------------
-
+# created off of chart made by Claude
 class StateMachine:
     def __init__(self):
         self.state = None          # current state string: "idle" or "move"
@@ -62,13 +58,7 @@ class StateMachine:
             self.state = new_state
 
 
-# ---------------------------------------------------------------------------
-# Player
-# ---------------------------------------------------------------------------
-
 class Player(Sprite):
-    # Idle sheet  : 64 x 128  → 2 cols × 4 rows = 8 frames at 32×32
-    # Walk sheet  : 128 x 160 → 4 cols × 5 rows = 20 frames at 32×32
     IDLE_COLS, IDLE_ROWS = 2, 4
     WALK_COLS, WALK_ROWS = 4, 5
     ANIM_SPEED_MS        = 120   # milliseconds per frame
@@ -104,10 +94,6 @@ class Player(Sprite):
         self.rect  = self.image.get_rect()
         self.hit_rect.center = self.rect.center
 
-    # ------------------------------------------------------------------
-    # Image loading
-    # ------------------------------------------------------------------
-
     def _slice_row(self, sheet, row, cols):
         """Return a list of 32×32 surfaces from a single row of a sheet."""
         frames = []
@@ -130,7 +116,7 @@ class Player(Sprite):
 
     def _load_images(self):
         idle_path = os.path.join(img_folder, 'Idle.png')
-        walk_path = os.path.join(img_folder, 'MainGuySpriteSheet.png')
+        walk_path = os.path.join(img_folder, 'Walk.png')
 
         self.idle_frames = self._slice_sheet(idle_path, self.IDLE_COLS, self.IDLE_ROWS)
 
@@ -147,10 +133,6 @@ class Player(Sprite):
                       for f in self._slice_row(walk_sheet, 2, self.WALK_COLS)],
         }
 
-    # ------------------------------------------------------------------
-    # Input
-    # ------------------------------------------------------------------
-
     def get_keys(self):
         self.vel = vec(0, 0)
         keys = pg.key.get_pressed()
@@ -160,10 +142,6 @@ class Player(Sprite):
         if keys[pg.K_s]: self.vel.y =  PLAYER_SPEED
         if self.vel.x != 0 and self.vel.y != 0:
             self.vel *= 0.7071
-
-    # ------------------------------------------------------------------
-    # State check (mirrors pasted code's state_check)
-    # ------------------------------------------------------------------
 
     def state_check(self):
         if self.vel != vec(0, 0):
@@ -181,10 +159,6 @@ class Player(Sprite):
         else:
             self.state_machine.transition("idle")
             self.moving = False
-
-    # ------------------------------------------------------------------
-    # Animation (mirrors pasted code's animate)
-    # ------------------------------------------------------------------
 
     def animate(self):
         now = pg.time.get_ticks()
@@ -205,9 +179,6 @@ class Player(Sprite):
         self.rect = self.image.get_rect()
         self.rect.bottom = bottom
 
-    # ------------------------------------------------------------------
-    # Update
-    # ------------------------------------------------------------------
 
     def update(self):
         self.get_keys()
@@ -222,10 +193,6 @@ class Player(Sprite):
         self.rect.center = self.hit_rect.center
         self.pos = vec(self.hit_rect.center)
 
-
-# ---------------------------------------------------------------------------
-# TransitionOverlay (unchanged)
-# ---------------------------------------------------------------------------
 
 # source: https://www.youtube.com/watch?time_continue=93&v=H2r2N7D56Uw&embeds_referring_euri=https%3A%2F%2Fwww.google.com%2Fsearch%3Fq%3Dclass%2BTransitionOverlay%253A%2Bdef%2B__init__(self)%253A%2Bself.active%2B%253D%2BFalse%2Bself.frame%2B%253D%2B0%2Bself.cal&source_ve_path=MjM4NTE
 class TransitionOverlay:

@@ -20,9 +20,9 @@ class Game:
     def new(self):
         self.all_sprites = pg.sprite.Group()
         self.wall_sprites = pg.sprite.Group()
-        self.rooms = generate_dungeon(10) #amt of rooms
+        self.rooms = generate_dungeon(10) # amt of rooms; maybe change it to random based on a set difficulty?
         self.current_id = 0
-        self._build_walls(self.rooms[0].exits) #builds it depending on the amt of exits in room i
+        self._build_walls(self.rooms[0].exits) # builds it depending on the amt of exits in room i
 
         cx, cy = centre_pos()
         self.player = Player(self, cx, cy)
