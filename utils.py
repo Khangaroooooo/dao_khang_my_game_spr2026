@@ -146,7 +146,8 @@ def draw_room(surface, room, walls, font):
         pg.draw.rect(surface, FLOOR_COLOR, (ox, vy - gap_px//2, wt, gap_px))
     if "east" in room.exits:
         pg.draw.rect(surface, FLOOR_COLOR, (ox + W - wt, vy - gap_px//2, wt, gap_px))
-
+    
+    # originally used as a marker for the movement type for each room
     #label = font.render(room.movement, True, (120, 120, 120))
     #surface.blit(label, (ox + W//2 - label.get_width()//2,
     #                     oy + H//2 - label.get_height()//2))
