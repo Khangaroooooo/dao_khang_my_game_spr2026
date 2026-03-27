@@ -86,6 +86,7 @@ class Game:
         self.transition.draw(self.screen)
         pg.display.flip()
 
+    # button is just a rect. with a clickable hitbox
     def show_start_screen(self):
         self.screen.fill(BLACK)
         font_title = pg.font.SysFont(None, 64)
