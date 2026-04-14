@@ -22,10 +22,11 @@ class Game:
         self.wall_sprites = pg.sprite.Group()
         self.rooms = generate_dungeon(10) # amt of rooms; maybe change it to random based on a set difficulty?
         self.current_id = 0
-        self._build_walls(self.rooms[0].exits) # builds it depending on the amt of exits in room i
+        self._build_walls(self.rooms[0]) # builds it depending on the amt of exits in room i
 
-        cx, cy = centre_pos()
-        self.player = Player(self, cx, cy)
+        cx, cy = centre_pos(self.rooms[0]) # uses method created in utils
+        self.player = Player(self, cx, cy) # creates a player at cx, cy
+        self.player.gamemode = self.rooms[0].gamemode  # set physics for the starting room
 
         self.transition = TransitionOverlay()
         self.pending = None
@@ -33,10 +34,10 @@ class Game:
         self.playing = True
         self.run()
 
-    def _build_walls(self, exits):
+    def _build_walls(self, room):
         # Clear old wall sprites and create new ones for the current room
         self.wall_sprites.empty()
-        rects = build_walls(exits)
+        rects = build_walls(room)
         self.walls = rects
         for r in rects:
             Wall(self, r)
@@ -61,7 +62,7 @@ class Game:
 
         self.all_sprites.update()
 
-        d = touched_exit(self.player.hit_rect, self.rooms[self.current_id].exits)
+        d = touched_exit(self.player.hit_rect, self.rooms[self.current_id])
         if d:
             self.pending = d
             self.transition.start(callback=lambda: self._travel(self.pending))
@@ -72,11 +73,15 @@ class Game:
     def _travel(self, direction):
         next_id = self.rooms[self.current_id].exits[direction]
         self.current_id = next_id
-        self._build_walls(self.rooms[next_id].exits)
-        nx, ny = entry_pos(direction)
+        self._build_walls(self.rooms[next_id])
+        nx, ny = entry_pos(direction, self.rooms[next_id])
         self.player.pos = vec(nx, ny)
         self.player.hit_rect.center = (nx, ny)
         self.player.rect.center = (nx, ny)
+        # Switch physics mode to match the new room and reset vertical speed
+        self.player.gamemode = self.rooms[next_id].gamemode
+        self.player.vel.y = 0
+        self.player.grounded = False
 
     def draw(self):
         self.screen.fill(DARK_GRAY)
@@ -95,7 +100,7 @@ class Game:
 
         start_btn_w, start_btn_h = 160, 48
         start_btn = pg.Rect(WIDTH // 2 - start_btn_w // 2, HEIGHT // 2 - start_btn_h // 2, start_btn_w, start_btn_h)
-        pg.draw.rect(self.screen, GRAY, start_btn)
+        pg.draw.rect(self.screen, GRAY, start_btn) 
         lbl = self.font.render("Start", True, WHITE)
         self.screen.blit(lbl, lbl.get_rect(center=start_btn.center))
         pg.display.flip()

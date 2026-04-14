@@ -61,7 +61,7 @@ class StateMachine:
 class Player(Sprite):
     IDLE_COLS, IDLE_ROWS = 2, 4
     WALK_COLS, WALK_ROWS = 4, 5
-    ANIM_SPEED_MS        = 120   # milliseconds per frame
+    ANIM_SPEED_MS = 240   # milliseconds per frame
 
     def __init__(self, game, x, y):
         self.groups = game.all_sprites
@@ -72,6 +72,9 @@ class Player(Sprite):
         self.pos = vec(x, y)
 
         self.hit_rect = PLAYER_HIT_RECT.copy()
+
+        self.gamemode = "topdown" # which physics mode the current room uses
+        self.grounded = False # tracks if the player is standing on the ground
 
         # State machine
         self.state_machine = StateMachine()
@@ -134,28 +137,34 @@ class Player(Sprite):
         }
 
     def get_keys(self):
-        self.vel = vec(0, 0)
         keys = pg.key.get_pressed()
-        if keys[pg.K_a]: self.vel.x = -PLAYER_SPEED
-        if keys[pg.K_d]: self.vel.x =  PLAYER_SPEED
-        if keys[pg.K_w]: self.vel.y = -PLAYER_SPEED
-        if keys[pg.K_s]: self.vel.y =  PLAYER_SPEED
-        if self.vel.x != 0 and self.vel.y != 0:
-            self.vel *= 0.7071
+
+        if self.gamemode == "topdown": # free movement in all directions
+            self.vel = vec(0, 0)
+            if keys[pg.K_a]: self.vel.x = -PLAYER_SPEED
+            if keys[pg.K_d]: self.vel.x =  PLAYER_SPEED
+            if keys[pg.K_w]: self.vel.y = -PLAYER_SPEED
+            if keys[pg.K_s]: self.vel.y =  PLAYER_SPEED
+            if self.vel.x != 0 and self.vel.y != 0:
+                self.vel *= 0.7071
+
+        elif self.gamemode == "platformer": # left/right only, gravity pulls you down
+            self.vel.x = 0
+            if keys[pg.K_a]: self.vel.x = -PLAYER_SPEED
+            if keys[pg.K_d]: self.vel.x =  PLAYER_SPEED
+            if (keys[pg.K_w] or keys[pg.K_SPACE]) and self.grounded: # jump only if on the ground
+                self.vel.y = JUMP_SPEED
+                self.grounded = False
 
     def state_check(self):
-        if self.vel != vec(0, 0):
+        # in platformer mode, falling doesn't count as "moving" for animation
+        if self.vel.x != 0 or (self.vel.y != 0 and self.gamemode == "topdown"):
             self.state_machine.transition("move")
             self.moving = True
-            # Update self.dir — horizontal takes priority on diagonals
-            if self.vel.x > 0:
-                self.dir = "Right"
-            elif self.vel.x < 0:
-                self.dir = "Left"
-            elif self.vel.y < 0:
-                self.dir = "Up"
-            elif self.vel.y > 0:
-                self.dir = "Down"
+            if self.vel.x > 0: self.dir = "Right"
+            elif self.vel.x < 0: self.dir = "Left"
+            elif self.vel.y < 0: self.dir = "Up"
+            elif self.vel.y > 0: self.dir = "Down"
         else:
             self.state_machine.transition("idle")
             self.moving = False
@@ -185,11 +194,20 @@ class Player(Sprite):
         self.state_check()
         self.animate()
 
-        self.pos += self.vel * self.game.dt
+        if self.gamemode == "platformer":
+            self.vel.y += GRAVITY * self.game.dt # pull the player down each frame
+
+        self.pos.x += self.vel.x * self.game.dt
         self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.walls, 'x')
+
+        self.pos.y += self.vel.y * self.game.dt
         self.hit_rect.centery = self.pos.y
         collide_with_walls(self, self.game.walls, 'y')
+
+        if self.gamemode == "platformer":
+            self.grounded = self.vel.y == 0 # collide_with_walls zeros vel.y on landing
+
         self.rect.center = self.hit_rect.center
         self.pos = vec(self.hit_rect.center)
 

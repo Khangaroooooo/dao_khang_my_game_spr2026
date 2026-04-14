@@ -23,7 +23,9 @@ class Room:
         self.id = room_id
         self.exits = {}
         self.grid_pos = (0, 0)
-        #self.movement = random.choice(MOVEMENT_MODES) # edit later; just placeholder
+        self.gamemode = "topdown"  # gets overwritten by generate_dungeon
+        self.cols = ROOM_COLS_MIN  # width in tiles, overwritten by generate_dungeon
+        self.rows = ROOM_ROWS_MIN  # height in tiles, overwritten by generate_dungeon
 
 # source: https://tiendil.org/en/posts/dungeon-generation-from-simple-to-complex
 def generate_dungeon(num_rooms):
@@ -33,6 +35,9 @@ def generate_dungeon(num_rooms):
 
     r0 = Room(0)
     r0.grid_pos = (0, 0)
+    r0.gamemode = random.choice(GAMEMODES) # pick a random physics mode for the starting room
+    r0.cols = random.randint(ROOM_COLS_MIN, ROOM_COLS_MAX) # pick a random width for the starting room
+    r0.rows = random.randint(ROOM_ROWS_MIN, ROOM_ROWS_MAX) # pick a random height for the starting room
     rooms[0] = r0
     grid[(0, 0)] = 0
     frontier = [(0, 0)]
@@ -57,6 +62,9 @@ def generate_dungeon(num_rooms):
             if not added:
                 new = Room(next_id)
                 new.grid_pos = (nc, nr)
+                new.gamemode = random.choice(GAMEMODES) # each room gets a random physics mode
+                new.cols = random.randint(ROOM_COLS_MIN, ROOM_COLS_MAX) # each room gets a random width
+                new.rows = random.randint(ROOM_ROWS_MIN, ROOM_ROWS_MAX) # each room gets a random height
                 rooms[next_id] = new
                 grid[(nc, nr)] = next_id
                 rooms[cur_id].exits[d] = next_id
@@ -79,10 +87,13 @@ def _neighbour(col, row, d):
             "east": (col+1, row), "west": (col-1, row)}[d]
 
 # source: https://nerdparadise.com/programming/pygame/part4
-def build_walls(exits):
+def build_walls(room):
     T = TILESIZE
-    ox, oy = ROOM_OX, ROOM_OY
-    W, H = ROOM_PX_W, ROOM_PX_H
+    W = (room.cols + WALL_TILES * 2) * T # pixel width of this room
+    H = (room.rows + WALL_TILES * 2) * T # pixel height of this room
+    ox = (WIDTH - W) // 2 # center the room horizontally on screen
+    oy = (HEIGHT - H) // 2 # center the room vertically on screen
+    exits = room.exits
     wt = WALL_TILES * T
     gap_px = DOOR_TILES * T
     door_x0 = ox + W // 2 - gap_px // 2
@@ -121,12 +132,14 @@ def build_walls(exits):
 # source: https://www.youtube.com/watch?v=WC6Yuzw7IYc
 def draw_room(surface, room, walls, font):
     T = TILESIZE
-    ox, oy = ROOM_OX, ROOM_OY
-    W, H = ROOM_PX_W, ROOM_PX_H
+    W = (room.cols + WALL_TILES * 2) * T
+    H = (room.rows + WALL_TILES * 2) * T
+    ox = (WIDTH - W) // 2
+    oy = (HEIGHT - H) // 2
     wt = WALL_TILES * T
 
-    for r in range(ROOM_ROWS):
-        for c in range(ROOM_COLS):
+    for r in range(room.rows):
+        for c in range(room.cols):
             x = ox + wt + c * T
             y = oy + wt + r * T
             pg.draw.rect(surface, FLOOR_COLOR, (x, y, T, T))
@@ -147,15 +160,16 @@ def draw_room(surface, room, walls, font):
     if "east" in room.exits:
         pg.draw.rect(surface, FLOOR_COLOR, (ox + W - wt, vy - gap_px//2, wt, gap_px))
     
-    # originally used as a marker for the movement type for each room
-    #label = font.render(room.movement, True, (120, 120, 120))
-    #surface.blit(label, (ox + W//2 - label.get_width()//2,
-    #                     oy + H//2 - label.get_height()//2))
+    label = font.render(room.gamemode, True, (120, 120, 120)) # shows the current room's physics mode
+    surface.blit(label, (ox + W//2 - label.get_width()//2, oy + H//2 - label.get_height()//2))
 
 # source: https://www.pygame.org/docs/ref/rect.html
-def entry_pos(direction):
-    ox, oy = ROOM_OX, ROOM_OY
-    W, H = ROOM_PX_W, ROOM_PX_H
+def entry_pos(direction, room):
+    T = TILESIZE
+    W = (room.cols + WALL_TILES * 2) * T
+    H = (room.rows + WALL_TILES * 2) * T
+    ox = (WIDTH - W) // 2
+    oy = (HEIGHT - H) // 2
     margin = WALL_TILES * TILESIZE + TILESIZE + 4
     cx = ox + W // 2
     cy = oy + H // 2
@@ -164,15 +178,26 @@ def entry_pos(direction):
     if direction == "west": return ox + W - margin, cy
     if direction == "east": return ox + margin, cy
     return cx, cy
+    # uses the direction of which entrance was exited; uses reverse mapping i.e. enter north - leave south, enter west - leave east
+    # thus returns coords of reverse mapping; final return statement is if it is the first room; spawn in center
 
 
-def centre_pos():
-    return ROOM_OX + ROOM_PX_W // 2, ROOM_OY + ROOM_PX_H // 2
+def centre_pos(room):
+    T = TILESIZE
+    W = (room.cols + WALL_TILES * 2) * T
+    H = (room.rows + WALL_TILES * 2) * T
+    ox = (WIDTH - W) // 2
+    oy = (HEIGHT - H) // 2
+    return ox + W // 2, oy + H // 2
 
 # source: https://www.geeksforgeeks.org/python/collision-detection-in-pygame/
-def touched_exit(player_rect, exits):
-    ox, oy = ROOM_OX, ROOM_OY
-    W, H = ROOM_PX_W, ROOM_PX_H
+def touched_exit(player_rect, room):
+    T = TILESIZE
+    W = (room.cols + WALL_TILES * 2) * T
+    H = (room.rows + WALL_TILES * 2) * T
+    ox = (WIDTH - W) // 2
+    oy = (HEIGHT - H) // 2
+    exits = room.exits
     wt = WALL_TILES * TILESIZE
     gap = DOOR_TILES * TILESIZE
     cx = ox + W // 2
