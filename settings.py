@@ -19,12 +19,12 @@ GRAVITY    = 1800   # px/s²  — downward acceleration applied every frame in p
 JUMP_SPEED = -1600  # px/s   — the upward velocity given to the player when they jump (negative = upward in pygame)
 
 #color values
-BLACK      = (0, 0, 0)           # pure black; used for the start screen background and transition fade
-WHITE      = (255, 255, 255)     # pure white; used for UI text labels
-GRAY       = (80, 80, 80)        # medium grey; used for the start button background
-DARK_GRAY  = (30, 30, 30)        # very dark grey; used to clear the screen each frame (outer border fill)
-FLOOR_COLOR = (50, 50, 50)       # dark grey; used to fill floor tiles inside the room interior
-WALL_COLOR  = (20, 20, 20)       # near-black; used to draw the solid wall segments of a room
+BLACK        = (0, 0, 0)           # pure black; used for the start screen background and transition fade
+WHITE        = (255, 255, 255)     # pure white; used for UI text labels
+GRAY         = (80, 80, 80)        # medium grey; used for the start button background
+DARK_GRAY    = (30, 30, 30)        # very dark grey; used to clear the screen each frame (outer border fill)
+FLOOR_COLOR  = (50, 50, 50)       # dark grey; used to fill floor tiles inside the room interior
+WALL_COLOR   = (20, 20, 20)       # near-black; used to draw the solid wall segments of a room
 PLAYER_COLOR = (220, 220, 220)   # light grey; reserved as the player's colour (used if no sprite image is loaded)
 
 #room values

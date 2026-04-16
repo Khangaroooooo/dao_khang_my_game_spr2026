@@ -1,5 +1,5 @@
-import sys                          # imports the sys module (not actively used here but available for exit/error handling)
-import pygame as pg                 # imports the pygame library and aliases it as 'pg' for convenience
+import sys                         # imports the sys module (not actively used here but available for exit/error handling)
+import pygame as pg                # imports the pygame library and aliases it as 'pg' for convenience
 from settings import *             # imports all constants and configuration values (WIDTH, HEIGHT, FPS, etc.)
 from sprites import *              # imports all sprite classes (Player, Wall, TransitionOverlay, etc.)
 from utils import *                # imports all utility functions (generate_dungeon, build_walls, draw_room, etc.)

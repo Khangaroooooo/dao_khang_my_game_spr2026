@@ -91,28 +91,28 @@ def _neighbour(col, row, d):
 
 # source: https://nerdparadise.com/programming/pygame/part4
 def build_walls(room):
-    T = TILESIZE                                    # shorthand for the tile size in pixels
-    W = (room.cols + WALL_TILES * 2) * T           # total pixel width of the room including wall borders on both sides
-    H = (room.rows + WALL_TILES * 2) * T           # total pixel height of the room including wall borders on both sides
-    ox = (WIDTH - W) // 2                          # horizontal pixel offset to centre the room on the screen
-    oy = (HEIGHT - H) // 2                         # vertical pixel offset to centre the room on the screen
-    exits = room.exits                             # shorthand reference to the room's exits dict
-    wt = WALL_TILES * T                            # wall border thickness in pixels
-    gap_px = DOOR_TILES * T                        # door opening width in pixels
+    T = TILESIZE                                  # shorthand for the tile size in pixels
+    W = (room.cols + WALL_TILES * 2) * T          # total pixel width of the room including wall borders on both sides
+    H = (room.rows + WALL_TILES * 2) * T          # total pixel height of the room including wall borders on both sides
+    ox = (WIDTH - W) // 2                         # horizontal pixel offset to centre the room on the screen
+    oy = (HEIGHT - H) // 2                        # vertical pixel offset to centre the room on the screen
+    exits = room.exits                            # shorthand reference to the room's exits dict
+    wt = WALL_TILES * T                           # wall border thickness in pixels
+    gap_px = DOOR_TILES * T                       # door opening width in pixels
     door_x0 = ox + W // 2 - gap_px // 2           # left pixel edge of the horizontal door gap (north/south walls)
     door_x1 = ox + W // 2 + gap_px // 2           # right pixel edge of the horizontal door gap
     door_y0 = oy + H // 2 - gap_px // 2           # top pixel edge of the vertical door gap (east/west walls)
     door_y1 = oy + H // 2 + gap_px // 2           # bottom pixel edge of the vertical door gap
 
-    walls = []                                     # list that will collect all wall pygame.Rect segments
+    walls = []                                    # list that will collect all wall pygame.Rect segments
 
-    if "north" in exits:                           # if the room has a north exit, split the top wall into two segments with a gap
+    if "north" in exits:                          # if the room has a north exit, split the top wall into two segments with a gap
         walls += [pg.Rect(ox, oy, door_x0 - ox, wt),               # left portion of the north wall (from room left to door left)
                   pg.Rect(door_x1, oy, (ox + W) - door_x1, wt)]    # right portion of the north wall (from door right to room right)
     else:
         walls.append(pg.Rect(ox, oy, W, wt))      # no exit: the north wall is one solid rect spanning the full room width
 
-    if "south" in exits:                           # if the room has a south exit, split the bottom wall into two segments with a gap
+    if "south" in exits:                          # if the room has a south exit, split the bottom wall into two segments with a gap
         walls += [pg.Rect(ox, oy + H - wt, door_x0 - ox, wt),              # left portion of the south wall
                   pg.Rect(door_x1, oy + H - wt, (ox + W) - door_x1, wt)]   # right portion of the south wall
     else:
