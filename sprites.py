@@ -11,14 +11,14 @@ WALL_IMG = pg.image.load(os.path.join(img_folder, 'WallResized.png'))  # loads t
 
 class Wall(Sprite):
     def __init__(self, game, rect):
-        self.groups = game.all_sprites, game.wall_sprites   # stores the sprite groups this wall belongs to
-        Sprite.__init__(self, self.groups)                  # registers this sprite with both groups via the pygame Sprite initialiser
-        self.game = game                                    # stores a reference to the Game object for later access if needed
-        self.rect = rect.copy()                             # copies the provided rect so changes to the original don't affect this sprite
-        self.image = pg.Surface((rect.width, rect.height)) # creates a blank surface matching the wall rect's pixel dimensions
-        for y in range(0, rect.height, TILESIZE):          # iterates over the surface vertically in TILESIZE-sized steps
-            for x in range(0, rect.width, TILESIZE):       # iterates over the surface horizontally in TILESIZE-sized steps
-                self.image.blit(WALL_IMG, (x, y))          # tiles the wall image across the surface so large walls are textured uniformly
+        self.groups = game.all_sprites, game.wall_sprites                       # stores the sprite groups this wall belongs to
+        Sprite.__init__(self, self.groups)                                      # registers this sprite with both groups via the pygame Sprite initialiser
+        self.game = game                                                        # stores a reference to the Game object for later access if needed
+        self.rect = rect.copy()                                                 # copies the provided rect so changes to the original don't affect this sprite
+        self.image = pg.Surface((rect.width, rect.height))                      # creates a blank surface matching the wall rect's pixel dimensions
+        for y in range(0, rect.height, TILESIZE):                               # iterates over the surface vertically in TILESIZE-sized steps
+            for x in range(0, rect.width, TILESIZE):                            # iterates over the surface horizontally in TILESIZE-sized steps
+                self.image.blit(WALL_IMG, (x, y))                               # tiles the wall image across the surface so large walls are textured uniformly
 
 
 def collide_hit_rect(one, two):
@@ -27,31 +27,31 @@ def collide_hit_rect(one, two):
 
 def collide_with_walls(sprite, walls, dir):
     if dir == 'x':                                                              # handles horizontal collision resolution
-        hits = [w for w in walls if sprite.hit_rect.colliderect(w)]            # finds all wall rects that currently overlap the sprite's hit_rect
+        hits = [w for w in walls if sprite.hit_rect.colliderect(w)]             # finds all wall rects that currently overlap the sprite's hit_rect
         if hits:                                                                # only resolves if at least one collision was detected
-            if hits[0].centerx > sprite.hit_rect.centerx:                      # if the wall is to the right of the sprite
-                sprite.pos.x = hits[0].left - sprite.hit_rect.width / 2        # pushes the sprite's position to the left edge of the wall
-            if hits[0].centerx < sprite.hit_rect.centerx:                      # if the wall is to the left of the sprite
-                sprite.pos.x = hits[0].right + sprite.hit_rect.width / 2       # pushes the sprite's position to the right edge of the wall
+            if hits[0].centerx > sprite.hit_rect.centerx:                       # if the wall is to the right of the sprite
+                sprite.pos.x = hits[0].left - sprite.hit_rect.width / 2         # pushes the sprite's position to the left edge of the wall
+            if hits[0].centerx < sprite.hit_rect.centerx:                       # if the wall is to the left of the sprite
+                sprite.pos.x = hits[0].right + sprite.hit_rect.width / 2        # pushes the sprite's position to the right edge of the wall
             sprite.vel.x = 0                                                    # zeroes horizontal velocity to prevent the sprite from moving into the wall
-            sprite.hit_rect.centerx = sprite.pos.x                             # syncs the hit_rect's x centre to the corrected position
+            sprite.hit_rect.centerx = sprite.pos.x                              # syncs the hit_rect's x centre to the corrected position
     if dir == 'y':                                                              # handles vertical collision resolution
-        hits = [w for w in walls if sprite.hit_rect.colliderect(w)]            # finds all wall rects overlapping vertically
+        hits = [w for w in walls if sprite.hit_rect.colliderect(w)]             # finds all wall rects overlapping vertically
         if hits:                                                                # only resolves if at least one collision was detected
-            if hits[0].centery > sprite.hit_rect.centery:                      # if the wall is below the sprite (floor)
-                sprite.pos.y = hits[0].top - sprite.hit_rect.height / 2        # pushes the sprite up to sit on top of the wall
-            if hits[0].centery < sprite.hit_rect.centery:                      # if the wall is above the sprite (ceiling)
-                sprite.pos.y = hits[0].bottom + sprite.hit_rect.height / 2     # pushes the sprite down below the wall
+            if hits[0].centery > sprite.hit_rect.centery:                       # if the wall is below the sprite (floor)
+                sprite.pos.y = hits[0].top - sprite.hit_rect.height / 2         # pushes the sprite up to sit on top of the wall
+            if hits[0].centery < sprite.hit_rect.centery:                       # if the wall is above the sprite (ceiling)
+                sprite.pos.y = hits[0].bottom + sprite.hit_rect.height / 2      # pushes the sprite down below the wall
             sprite.vel.y = 0                                                    # zeroes vertical velocity (stops falling or upward movement on contact)
-            sprite.hit_rect.centery = sprite.pos.y                             # syncs the hit_rect's y centre to the corrected position
+            sprite.hit_rect.centery = sprite.pos.y                              # syncs the hit_rect's y centre to the corrected position
 
 # created off of chart made by Claude
 class StateMachine:
     def __init__(self):
-        self.state = None          # holds the current state string; None until start() is called
+        self.state = None               # holds the current state string; None until start() is called
 
     def start(self, initial_state):
-        self.state = initial_state  # sets the initial state when the state machine is first activated
+        self.state = initial_state      # sets the initial state when the state machine is first activated
 
     def transition(self, new_state):
         if self.state != new_state:     # only transitions if the new state is actually different from the current one
@@ -61,7 +61,7 @@ class StateMachine:
 class Player(Sprite):
     IDLE_COLS, IDLE_ROWS = 2, 4         # the idle spritesheet has 2 columns and 4 rows of 32×32 frames
     WALK_COLS, WALK_ROWS = 4, 5         # the walk spritesheet has 4 columns and 5 rows of 32×32 frames
-    ANIM_SPEED_MS = 240                 # milliseconds between each animation frame advance
+    ANIM_SPEED_MS        = 240          # milliseconds between each animation frame advance
 
     def __init__(self, game, x, y):
         self.groups = game.all_sprites              # the player belongs only to the all_sprites group (not wall_sprites)
@@ -142,20 +142,20 @@ class Player(Sprite):
 
         if self.gamemode == "topdown":         # free 8-direction movement; gravity is disabled
             self.vel = vec(0, 0)               # resets velocity to zero before applying key input each frame
-            if keys[pg.K_a]: self.vel.x = -PLAYER_SPEED   # moves left if A is held
-            if keys[pg.K_d]: self.vel.x =  PLAYER_SPEED   # moves right if D is held
-            if keys[pg.K_w]: self.vel.y = -PLAYER_SPEED   # moves up if W is held (negative y = up in pygame)
-            if keys[pg.K_s]: self.vel.y =  PLAYER_SPEED   # moves down if S is held
-            if self.vel.x != 0 and self.vel.y != 0:        # checks if the player is moving diagonally
-                self.vel *= 0.7071                         # normalises diagonal speed (≈ 1/√2) so it matches straight movement magnitude
+            if keys[pg.K_a]: self.vel.x = -PLAYER_SPEED                 # moves left if A is held
+            if keys[pg.K_d]: self.vel.x =  PLAYER_SPEED                 # moves right if D is held
+            if keys[pg.K_w]: self.vel.y = -PLAYER_SPEED                 # moves up if W is held (negative y = up in pygame)
+            if keys[pg.K_s]: self.vel.y =  PLAYER_SPEED                 # moves down if S is held
+            if self.vel.x != 0 and self.vel.y != 0:                     # checks if the player is moving diagonally
+                self.vel *= 0.7071                                      # normalises diagonal speed (≈ 1/√2) so it matches straight movement magnitude
 
         elif self.gamemode == "platformer":    # horizontal movement only; gravity is applied by update()
             self.vel.x = 0                     # resets horizontal velocity before reading input (vertical is preserved for gravity)
-            if keys[pg.K_a]: self.vel.x = -PLAYER_SPEED               # moves left if A is held
-            if keys[pg.K_d]: self.vel.x =  PLAYER_SPEED               # moves right if D is held
-            if (keys[pg.K_w] or keys[pg.K_SPACE]) and self.grounded:  # allows jump only if W or Space is held AND the player is on the ground
-                self.vel.y = JUMP_SPEED                                # sets a strong upward velocity to initiate the jump
-                self.grounded = False                                  # immediately marks the player as airborne to prevent double-jumping
+            if keys[pg.K_a]: self.vel.x = -PLAYER_SPEED                 # moves left if A is held
+            if keys[pg.K_d]: self.vel.x =  PLAYER_SPEED                 # moves right if D is held
+            if (keys[pg.K_w] or keys[pg.K_SPACE]) and self.grounded:    # allows jump only if W or Space is held AND the player is on the ground
+                self.vel.y = JUMP_SPEED                                 # sets a strong upward velocity to initiate the jump
+                self.grounded = False                                   # immediately marks the player as airborne to prevent double-jumping
 
     def state_check(self):
         # in platformer mode, falling doesn't count as "moving" for animation
@@ -171,12 +171,12 @@ class Player(Sprite):
             self.moving = False                    # clears the moving flag so the idle animation plays
 
     def animate(self):
-        now = pg.time.get_ticks()                               # gets the current time in milliseconds since pygame was initialised
-        if now - self.last_update < self.ANIM_SPEED_MS:        # checks whether enough time has passed to advance to the next frame
-            return                                             # exits early if the animation timer hasn't elapsed yet
+        now = pg.time.get_ticks()                                       # gets the current time in milliseconds since pygame was initialised
+        if now - self.last_update < self.ANIM_SPEED_MS:                 # checks whether enough time has passed to advance to the next frame
+            return                                                      # exits early if the animation timer hasn't elapsed yet
 
-        self.last_update = now                                 # records this moment as the last frame advance time
-        bottom = self.rect.bottom                             # saves the current bottom y-coordinate before resizing the rect
+        self.last_update = now                                          # records this moment as the last frame advance time
+        bottom = self.rect.bottom                                       # saves the current bottom y-coordinate before resizing the rect
 
         if not self.moving:                                    # plays the idle animation when the player is stationary
             self.current_frame = (self.current_frame + 1) % len(self.idle_frames)  # advances frame index, wrapping back to 0 at the end
@@ -191,26 +191,26 @@ class Player(Sprite):
 
 
     def update(self):
-        self.get_keys()                             # reads keyboard input and updates the velocity vector accordingly
-        self.state_check()                          # determines the current animation state (idle/move) and facing direction
-        self.animate()                              # advances the animation frame if enough time has passed
+        self.get_keys()                                 # reads keyboard input and updates the velocity vector accordingly
+        self.state_check()                              # determines the current animation state (idle/move) and facing direction
+        self.animate()                                  # advances the animation frame if enough time has passed
 
         if self.gamemode == "platformer":
-            self.vel.y += GRAVITY * self.game.dt   # applies gravity by increasing downward velocity proportional to elapsed time
+            self.vel.y += GRAVITY * self.game.dt        # applies gravity by increasing downward velocity proportional to elapsed time
 
-        self.pos.x += self.vel.x * self.game.dt    # moves the logical x position by the horizontal velocity scaled to delta time
-        self.hit_rect.centerx = self.pos.x         # syncs the collision rect's x centre to the updated logical x position
+        self.pos.x += self.vel.x * self.game.dt         # moves the logical x position by the horizontal velocity scaled to delta time
+        self.hit_rect.centerx = self.pos.x              # syncs the collision rect's x centre to the updated logical x position
         collide_with_walls(self, self.game.walls, 'x')  # resolves any horizontal collisions with wall rects and corrects position
 
-        self.pos.y += self.vel.y * self.game.dt    # moves the logical y position by the vertical velocity scaled to delta time
-        self.hit_rect.centery = self.pos.y         # syncs the collision rect's y centre to the updated logical y position
+        self.pos.y += self.vel.y * self.game.dt         # moves the logical y position by the vertical velocity scaled to delta time
+        self.hit_rect.centery = self.pos.y              # syncs the collision rect's y centre to the updated logical y position
         collide_with_walls(self, self.game.walls, 'y')  # resolves any vertical collisions with wall rects and corrects position
 
         if self.gamemode == "platformer":
-            self.grounded = self.vel.y == 0        # if vertical velocity was zeroed by wall collision, the player is on the ground
+            self.grounded = self.vel.y == 0             # if vertical velocity was zeroed by wall collision, the player is on the ground
 
-        self.rect.center = self.hit_rect.center    # syncs the visual sprite rect's centre to the collision rect's (possibly corrected) centre
-        self.pos = vec(self.hit_rect.center)       # re-derives the logical position vector from the final corrected hit_rect centre
+        self.rect.center = self.hit_rect.center         # syncs the visual sprite rect's centre to the collision rect's (possibly corrected) centre
+        self.pos = vec(self.hit_rect.center)            # re-derives the logical position vector from the final corrected hit_rect centre
 
 
 # source: https://www.youtube.com/watch?time_continue=93&v=H2r2N7D56Uw&embeds_referring_euri=https%3A%2F%2Fwww.google.com%2Fsearch%3Fq%3Dclass%2BTransitionOverlay%253A%2Bdef%2B__init__(self)%253A%2Bself.active%2B%253D%2BFalse%2Bself.frame%2B%253D%2B0%2Bself.cal&source_ve_path=MjM4NTE
@@ -240,12 +240,12 @@ class TransitionOverlay:
     def draw(self, surface):
         if not self.active:       # skips drawing entirely if no transition is active
             return
-        half = TRANSITION_FRAMES // 2                                       # midpoint frame index (full opacity)
-        if self.frame <= half:                                               # first half: fading in (transparent → opaque)
-            alpha = int(255 * self.frame / half)                            # linearly increases alpha from 0 to 255 as frames progress to the midpoint
-        else:                                                                # second half: fading out (opaque → transparent)
-            alpha = int(255 * (TRANSITION_FRAMES - self.frame) / half)     # linearly decreases alpha from 255 back to 0 as frames progress to the end
-        veil = pg.Surface((WIDTH, HEIGHT))                                  # creates a full-screen black surface to use as the fade overlay
-        veil.fill(BLACK)                                                    # fills the overlay surface with solid black
-        veil.set_alpha(max(0, min(255, alpha)))                             # applies the calculated alpha (clamped to 0–255) to control transparency
-        surface.blit(veil, (0, 0))                                         # draws the semi-transparent black veil over the entire game screen
+        half = TRANSITION_FRAMES // 2                                           # midpoint frame index (full opacity)
+        if self.frame <= half:                                                  # first half: fading in (transparent → opaque)
+            alpha = int(255 * self.frame / half)                                # linearly increases alpha from 0 to 255 as frames progress to the midpoint
+        else:                                                                   # second half: fading out (opaque → transparent)
+            alpha = int(255 * (TRANSITION_FRAMES - self.frame) / half)          # linearly decreases alpha from 255 back to 0 as frames progress to the end
+        veil = pg.Surface((WIDTH, HEIGHT))                                      # creates a full-screen black surface to use as the fade overlay
+        veil.fill(BLACK)                                                        # fills the overlay surface with solid black
+        veil.set_alpha(max(0, min(255, alpha)))                                 # applies the calculated alpha (clamped to 0–255) to control transparency
+        surface.blit(veil, (0, 0))                                              # draws the semi-transparent black veil over the entire game screen

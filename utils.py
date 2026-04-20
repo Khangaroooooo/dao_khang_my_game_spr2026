@@ -30,59 +30,59 @@ class Room:
         self.cols = ROOM_COLS_MIN       # room width in tiles; overwritten by generate_dungeon with a random value
         self.rows = ROOM_ROWS_MIN       # room height in tiles; overwritten by generate_dungeon with a random value
 
-# source: https://tiendil.org/en/posts/dungeon-generation-from-simple-to-complex
+# source: https://tiendil.org/en/posts/dungeon-generation-from-simple-to-complex & claude; prompt: implement map generation
 def generate_dungeon(num_rooms):
     rooms = {}              # dict mapping room ID integers to Room objects
     grid = {}               # dict mapping (col, row) grid coordinates to room ID integers
     next_id = 1             # counter for assigning unique IDs to new rooms (room 0 is the start)
 
-    r0 = Room(0)                                        # creates the starting room with ID 0
-    r0.grid_pos = (0, 0)                                # places the starting room at the origin of the dungeon grid
-    r0.gamemode = random.choice(GAMEMODES)              # randomly assigns either "topdown" or "platformer" physics to the start room
-    r0.cols = random.randint(ROOM_COLS_MIN, ROOM_COLS_MAX)  # gives the start room a random width within the allowed tile range
-    r0.rows = random.randint(ROOM_ROWS_MIN, ROOM_ROWS_MAX)  # gives the start room a random height within the allowed tile range
-    rooms[0] = r0                                       # registers the starting room in the rooms dict
-    grid[(0, 0)] = 0                                    # marks the origin grid cell as occupied by room 0
-    frontier = [(0, 0)]                                 # list of grid positions that still have potential to grow new exits
+    r0 = Room(0)                                                        # creates the starting room with ID 0
+    r0.grid_pos = (0, 0)                                                # places the starting room at the origin of the dungeon grid
+    r0.gamemode = random.choice(GAMEMODES)                              # randomly assigns either "topdown" or "platformer" physics to the start room
+    r0.cols = random.randint(ROOM_COLS_MIN, ROOM_COLS_MAX)              # gives the start room a random width within the allowed tile range
+    r0.rows = random.randint(ROOM_ROWS_MIN, ROOM_ROWS_MAX)              # gives the start room a random height within the allowed tile range
+    rooms[0] = r0                                                       # registers the starting room in the rooms dict
+    grid[(0, 0)] = 0                                                    # marks the origin grid cell as occupied by room 0
+    frontier = [(0, 0)]                                                 # list of grid positions that still have potential to grow new exits
 
-    while len(rooms) < num_rooms and frontier:          # keeps generating rooms until the target count is reached or no frontier remains
-        col, row = random.choice(frontier)              # picks a random grid position from the frontier to expand from
-        cur_id = grid[(col, row)]                       # retrieves the room ID at the chosen frontier position
-        dirs = DIRS[:]                                  # makes a copy of the direction list to shuffle without mutating the original
-        random.shuffle(dirs)                            # randomises the order directions are tried to ensure varied dungeon layouts
-        added = False                                   # flag to ensure at most one new room is added per frontier cell per iteration
+    while len(rooms) < num_rooms and frontier:                          # keeps generating rooms until the target count is reached or no frontier remains
+        col, row = random.choice(frontier)                              # picks a random grid position from the frontier to expand from
+        cur_id = grid[(col, row)]                                       # retrieves the room ID at the chosen frontier position
+        dirs = DIRS[:]                                                  # makes a copy of the direction list to shuffle without mutating the original
+        random.shuffle(dirs)                                            # randomises the order directions are tried to ensure varied dungeon layouts
+        added = False                                                   # flag to ensure at most one new room is added per frontier cell per iteration
 
-        for d in dirs:                                  # tries each direction in shuffled order
-            nc, nr = _neighbour(col, row, d)            # calculates the grid coordinates of the neighbour in direction d
+        for d in dirs:                                                  # tries each direction in shuffled order
+            nc, nr = _neighbour(col, row, d)                            # calculates the grid coordinates of the neighbour in direction d
 
-            if (nc, nr) in grid:                        # checks if that neighbour cell is already occupied by an existing room
-                if d not in rooms[cur_id].exits:        # checks if there isn't already a connection in that direction
-                    nid = grid[(nc, nr)]                # gets the ID of the already-existing neighbour room
-                    rooms[cur_id].exits[d] = nid        # creates a one-way connection from the current room to the neighbour
-                    rooms[nid].exits[OPPOSITE[d]] = cur_id  # creates the matching reverse connection from the neighbour back
-                continue                                # moves on to try the next direction after handling the existing neighbour
+            if (nc, nr) in grid:                                        # checks if that neighbour cell is already occupied by an existing room
+                if d not in rooms[cur_id].exits:                        # checks if there isn't already a connection in that direction
+                    nid = grid[(nc, nr)]                                # gets the ID of the already-existing neighbour room
+                    rooms[cur_id].exits[d] = nid                        # creates a one-way connection from the current room to the neighbour
+                    rooms[nid].exits[OPPOSITE[d]] = cur_id              # creates the matching reverse connection from the neighbour back
+                continue                                                # moves on to try the next direction after handling the existing neighbour
 
-            if not added:                               # only creates a brand-new room if one hasn't been added this iteration
-                new = Room(next_id)                     # creates a new Room object with the next available ID
-                new.grid_pos = (nc, nr)                 # sets the new room's position in the dungeon grid
-                new.gamemode = random.choice(GAMEMODES) # randomly assigns a physics mode to the new room
-                new.cols = random.randint(ROOM_COLS_MIN, ROOM_COLS_MAX)  # randomly sets the new room's width
-                new.rows = random.randint(ROOM_ROWS_MIN, ROOM_ROWS_MAX)  # randomly sets the new room's height
-                rooms[next_id] = new                    # registers the new room in the rooms dict
-                grid[(nc, nr)] = next_id                # marks the new grid cell as occupied by this room's ID
-                rooms[cur_id].exits[d] = next_id        # connects the current room to the new room in direction d
-                rooms[next_id].exits[OPPOSITE[d]] = cur_id  # connects the new room back to the current room in the opposite direction
-                frontier.append((nc, nr))               # adds the new room's grid position to the frontier for future expansion
-                next_id += 1                            # increments the ID counter for the next new room
-                added = True                            # marks that a room was added this iteration to prevent adding more
+            if not added:                                               # only creates a brand-new room if one hasn't been added this iteration
+                new = Room(next_id)                                     # creates a new Room object with the next available ID
+                new.grid_pos = (nc, nr)                                 # sets the new room's position in the dungeon grid
+                new.gamemode = random.choice(GAMEMODES)                 # randomly assigns a physics mode to the new room
+                new.cols = random.randint(ROOM_COLS_MIN, ROOM_COLS_MAX) # randomly sets the new room's width
+                new.rows = random.randint(ROOM_ROWS_MIN, ROOM_ROWS_MAX) # randomly sets the new room's height
+                rooms[next_id] = new                                    # registers the new room in the rooms dict
+                grid[(nc, nr)] = next_id                                # marks the new grid cell as occupied by this room's ID
+                rooms[cur_id].exits[d] = next_id                        # connects the current room to the new room in direction d
+                rooms[next_id].exits[OPPOSITE[d]] = cur_id              # connects the new room back to the current room in the opposite direction
+                frontier.append((nc, nr))                               # adds the new room's grid position to the frontier for future expansion
+                next_id += 1                                            # increments the ID counter for the next new room
+                added = True                                            # marks that a room was added this iteration to prevent adding more
 
-            if len(rooms) >= num_rooms:                 # checks if the total room target has been met mid-loop
-                break                                   # stops trying more directions for this frontier cell
+            if len(rooms) >= num_rooms:                                 # checks if the total room target has been met mid-loop
+                break                                                   # stops trying more directions for this frontier cell
 
-        if not added:                                   # if no new room could be added from this cell
-            frontier.remove((col, row))                 # removes it from the frontier since it can no longer expand
+        if not added:                                                   # if no new room could be added from this cell
+            frontier.remove((col, row))                                 # removes it from the frontier since it can no longer expand
 
-    return rooms                                        # returns the completed dict of all generated Room objects
+    return rooms                                                        # returns the completed dict of all generated Room objects
 
 # source: https://www.redblobgames.com/grids/parts/#neighbors
 def _neighbour(col, row, d):
@@ -167,45 +167,45 @@ def draw_room(surface, room, walls, font):
     surface.blit(label, (ox + W//2 - label.get_width()//2, oy + H//2 - label.get_height()//2))  # draws the label centred in the room
 
 # source: https://www.pygame.org/docs/ref/rect.html
-def entry_pos(direction, room):
-    T = TILESIZE                                    # shorthand for tile pixel size
-    W = (room.cols + WALL_TILES * 2) * T           # total pixel width of the destination room
-    H = (room.rows + WALL_TILES * 2) * T           # total pixel height of the destination room
-    ox = (WIDTH - W) // 2                          # x offset to centre the destination room on screen
-    oy = (HEIGHT - H) // 2                         # y offset to centre the destination room on screen
-    margin = WALL_TILES * TILESIZE + TILESIZE + 4  # pixel distance from the inner wall edge to place the player (just inside the door)
-    cx = ox + W // 2                               # horizontal centre pixel of the room
-    cy = oy + H // 2                               # vertical centre pixel of the room
-    if direction == "north": return cx, oy + H - margin   # entered from north → spawn near the south wall of the new room
-    if direction == "south": return cx, oy + margin       # entered from south → spawn near the north wall of the new room
-    if direction == "west":  return ox + W - margin, cy   # entered from west → spawn near the east wall of the new room
-    if direction == "east":  return ox + margin, cy       # entered from east → spawn near the west wall of the new room
-    return cx, cy                                          # fallback: spawn at the room centre (used only for the very first room)
+def entry_pos(direction, room):     #returns which entrance the player is coming from based on the exit they used in the previous room
+    T = TILESIZE                                        # shorthand for tile pixel size
+    W = (room.cols + WALL_TILES * 2) * T                # total pixel width of the destination room
+    H = (room.rows + WALL_TILES * 2) * T                # total pixel height of the destination room
+    ox = (WIDTH - W) // 2                               # x offset to centre the destination room on screen
+    oy = (HEIGHT - H) // 2                              # y offset to centre the destination room on screen
+    margin = WALL_TILES * TILESIZE + TILESIZE + 4       # pixel distance from the inner wall edge to place the player (just inside the door)
+    cx = ox + W // 2                                    # horizontal centre pixel of the room
+    cy = oy + H // 2                                    # vertical centre pixel of the room
+    if direction == "north": return cx, oy + H - margin     # entered from north → spawn near the south wall of the new room
+    if direction == "south": return cx, oy + margin         # entered from south → spawn near the north wall of the new room
+    if direction == "west":  return ox + W - margin, cy     # entered from west → spawn near the east wall of the new room
+    if direction == "east":  return ox + margin, cy         # entered from east → spawn near the west wall of the new room
+    return cx, cy                                           # fallback: spawn at the room centre (used only for the very first room)
     # uses the direction of which entrance was exited; uses reverse mapping i.e. enter north - leave south, enter west - leave east
     # thus returns coords of reverse mapping; final return statement is if it is the first room; spawn in center
 
 
 def centre_pos(room):
     T = TILESIZE                                    # shorthand for tile pixel size
-    W = (room.cols + WALL_TILES * 2) * T           # total pixel width of the room
-    H = (room.rows + WALL_TILES * 2) * T           # total pixel height of the room
-    ox = (WIDTH - W) // 2                          # x offset to centre the room on screen
-    oy = (HEIGHT - H) // 2                         # y offset to centre the room on screen
-    return ox + W // 2, oy + H // 2               # returns the absolute pixel coordinates of the room's centre point
+    W = (room.cols + WALL_TILES * 2) * T            # total pixel width of the room
+    H = (room.rows + WALL_TILES * 2) * T            # total pixel height of the room
+    ox = (WIDTH - W) // 2                           # x offset to centre the room on screen
+    oy = (HEIGHT - H) // 2                          # y offset to centre the room on screen
+    return ox + W // 2, oy + H // 2                 # returns the absolute pixel coordinates of the room's centre point
 
 # source: https://www.geeksforgeeks.org/python/collision-detection-in-pygame/
 def touched_exit(player_rect, room):
     T = TILESIZE                                    # shorthand for tile pixel size
-    W = (room.cols + WALL_TILES * 2) * T           # total pixel width of the current room
-    H = (room.rows + WALL_TILES * 2) * T           # total pixel height of the current room
-    ox = (WIDTH - W) // 2                          # x offset to centre the room on screen
-    oy = (HEIGHT - H) // 2                         # y offset to centre the room on screen
-    exits = room.exits                             # shorthand for the current room's exits dict
-    wt = WALL_TILES * TILESIZE                     # wall border thickness in pixels
-    gap = DOOR_TILES * TILESIZE                    # door opening width in pixels
-    cx = ox + W // 2                              # horizontal centre x of the room (used to check if player is aligned with a north/south door)
-    cy = oy + H // 2                              # vertical centre y of the room (used to check if player is aligned with an east/west door)
-    pr = player_rect                              # shorthand alias for the player's hit rect
+    W = (room.cols + WALL_TILES * 2) * T            # total pixel width of the current room
+    H = (room.rows + WALL_TILES * 2) * T            # total pixel height of the current room
+    ox = (WIDTH - W) // 2                           # x offset to centre the room on screen
+    oy = (HEIGHT - H) // 2                          # y offset to centre the room on screen
+    exits = room.exits                              # shorthand for the current room's exits dict
+    wt = WALL_TILES * TILESIZE                      # wall border thickness in pixels
+    gap = DOOR_TILES * TILESIZE                     # door opening width in pixels
+    cx = ox + W // 2                                # horizontal centre x of the room (used to check if player is aligned with a north/south door)
+    cy = oy + H // 2                                # vertical centre y of the room (used to check if player is aligned with an east/west door)
+    pr = player_rect                                # shorthand alias for the player's hit rect
 
     if "north" in exits and pr.top <= oy + wt and cx - gap//2 <= pr.centerx <= cx + gap//2: return "north"  # player's top edge crossed the north wall AND is horizontally within the door gap
     if "south" in exits and pr.bottom >= oy + H - wt and cx - gap//2 <= pr.centerx <= cx + gap//2: return "south"  # player's bottom edge crossed the south wall AND is within the door gap
