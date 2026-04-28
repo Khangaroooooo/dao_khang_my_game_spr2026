@@ -24,7 +24,7 @@ class Game:
         self.current_id = 0                                          # tracks which room the player is currently in (starts in room 0)
         self._build_walls(self.rooms[0])                             # constructs wall collision rects for the starting room based on its exits
 
-        cx, cy = centre_pos(self.rooms[0])                          # calculates the pixel centre coordinates of the starting room
+        cx, cy = centre_pos(self.rooms[0])                           # calculates the pixel centre coordinates of the starting room
         self.player = Player(self, cx, cy)                           # spawns the player sprite at the centre of the starting room
         self.player.gamemode = self.rooms[0].gamemode                # assigns the starting room's physics mode (topdown/platformer) to the player
 

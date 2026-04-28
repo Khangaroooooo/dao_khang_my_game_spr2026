@@ -98,6 +98,7 @@ class Player(Sprite):
         self.rect  = self.image.get_rect()          # creates a pygame.Rect matching the image dimensions for rendering
         self.hit_rect.center = self.rect.center     # aligns the collision rect's centre to the visual rect's centre
 
+# claude finding a more effective for animating through spritesheet
     def _slice_row(self, sheet, row, cols):
         """Return a list of 32×32 surfaces from a single row of a sheet."""
         frames = []                                             # empty list to collect the sliced frame surfaces
@@ -139,21 +140,23 @@ class Player(Sprite):
 
     def get_keys(self):
         keys = pg.key.get_pressed()            # reads the current state of every keyboard key as a boolean array
+        if keys[pg.K_q]:
+            pg.quit()
 
         if self.gamemode == "topdown":         # free 8-direction movement; gravity is disabled
             self.vel = vec(0, 0)               # resets velocity to zero before applying key input each frame
-            if keys[pg.K_a]: self.vel.x = -PLAYER_SPEED                 # moves left if A is held
-            if keys[pg.K_d]: self.vel.x =  PLAYER_SPEED                 # moves right if D is held
-            if keys[pg.K_w]: self.vel.y = -PLAYER_SPEED                 # moves up if W is held (negative y = up in pygame)
-            if keys[pg.K_s]: self.vel.y =  PLAYER_SPEED                 # moves down if S is held
+            if keys[pg.K_a] or keys[pg.K_LEFT]: self.vel.x = -PLAYER_SPEED                 # moves left if A is held
+            if keys[pg.K_d] or keys[pg.K_RIGHT]: self.vel.x =  PLAYER_SPEED                 # moves right if D is held
+            if keys[pg.K_w] or keys[pg.K_UP]: self.vel.y = -PLAYER_SPEED                 # moves up if W is held (negative y = up in pygame)
+            if keys[pg.K_s] or keys[pg.K_DOWN]: self.vel.y =  PLAYER_SPEED                 # moves down if S is held
             if self.vel.x != 0 and self.vel.y != 0:                     # checks if the player is moving diagonally
                 self.vel *= 0.7071                                      # normalises diagonal speed (≈ 1/√2) so it matches straight movement magnitude
 
         elif self.gamemode == "platformer":    # horizontal movement only; gravity is applied by update()
             self.vel.x = 0                     # resets horizontal velocity before reading input (vertical is preserved for gravity)
-            if keys[pg.K_a]: self.vel.x = -PLAYER_SPEED                 # moves left if A is held
-            if keys[pg.K_d]: self.vel.x =  PLAYER_SPEED                 # moves right if D is held
-            if (keys[pg.K_w] or keys[pg.K_SPACE]) and self.grounded:    # allows jump only if W or Space is held AND the player is on the ground
+            if keys[pg.K_a] or keys[pg.K_LEFT]: self.vel.x = -PLAYER_SPEED                 # moves left if A is held
+            if keys[pg.K_d] or keys[pg.K_RIGHT]: self.vel.x =  PLAYER_SPEED                 # moves right if D is held
+            if (keys[pg.K_w] or keys[pg.K_UP] or keys[pg.K_SPACE]) and self.grounded:    # allows jump only if W or Space is held AND the player is on the ground
                 self.vel.y = JUMP_SPEED                                 # sets a strong upward velocity to initiate the jump
                 self.grounded = False                                   # immediately marks the player as airborne to prevent double-jumping
 

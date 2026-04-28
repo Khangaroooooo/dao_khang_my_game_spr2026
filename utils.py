@@ -173,7 +173,7 @@ def entry_pos(direction, room):     #returns which entrance the player is coming
     H = (room.rows + WALL_TILES * 2) * T                # total pixel height of the destination room
     ox = (WIDTH - W) // 2                               # x offset to centre the destination room on screen
     oy = (HEIGHT - H) // 2                              # y offset to centre the destination room on screen
-    margin = WALL_TILES * TILESIZE + TILESIZE + 4       # pixel distance from the inner wall edge to place the player (just inside the door)
+    margin = WALL_TILES * TILESIZE + TILESIZE + 5       # pixel distance from the inner wall edge to place the player (just inside the door)
     cx = ox + W // 2                                    # horizontal centre pixel of the room
     cy = oy + H // 2                                    # vertical centre pixel of the room
     if direction == "north": return cx, oy + H - margin     # entered from north → spawn near the south wall of the new room
