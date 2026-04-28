@@ -145,6 +145,11 @@ class Player(Sprite):
 
         if self.gamemode == "topdown":         # free 8-direction movement; gravity is disabled
             self.vel = vec(0, 0)               # resets velocity to zero before applying key input each frame
+            if keys[pg.K_LSHIFT]:
+                if keys[pg.K_a] or keys[pg.K_LEFT]: self.vel.x = -PLAYER_SPEED*2                 # moves left if A is held
+                if keys[pg.K_d] or keys[pg.K_RIGHT]: self.vel.x =  PLAYER_SPEED*2                 # moves right if D is held
+                if keys[pg.K_w] or keys[pg.K_UP]: self.vel.y = -PLAYER_SPEED*2                 # moves up if W is held (negative y = up in pygame)
+                if keys[pg.K_s] or keys[pg.K_DOWN]: self.vel.y =  PLAYER_SPEED*2                 # moves down if S is held
             if keys[pg.K_a] or keys[pg.K_LEFT]: self.vel.x = -PLAYER_SPEED                 # moves left if A is held
             if keys[pg.K_d] or keys[pg.K_RIGHT]: self.vel.x =  PLAYER_SPEED                 # moves right if D is held
             if keys[pg.K_w] or keys[pg.K_UP]: self.vel.y = -PLAYER_SPEED                 # moves up if W is held (negative y = up in pygame)
