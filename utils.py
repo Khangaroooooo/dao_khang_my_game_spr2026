@@ -138,7 +138,7 @@ def build_walls(room):
 
 
 # source: https://www.youtube.com/watch?v=WC6Yuzw7IYc
-def draw_room(surface, room, walls, font):
+def draw_room(surface, room, walls, font, rooms):
     T  = TILESIZE
     W  = (room.cols + WALL_TILES * 2) * T
     H  = (room.rows + WALL_TILES * 2) * T
@@ -163,6 +163,28 @@ def draw_room(surface, room, walls, font):
     if "west"  in room.exits: pg.draw.rect(surface, FLOOR_COLOR, (ox, vy - gap_px//2, wt, gap_px))
     if "east"  in room.exits: pg.draw.rect(surface, FLOOR_COLOR, (ox+W-wt, vy - gap_px//2, wt, gap_px))
     label = font.render(room.gamemode, True, (120, 120, 120))
+
+    # NEW: draw a direction arrow in the top-right corner pointing from the current room's grid position toward the finish room's grid position
+    finish_room = next((r for r in rooms.values() if r.is_finish), None)        # finds the finish room by scanning all rooms for the is_finish flag
+    if finish_room and not room.is_finish:                                       # only draws the arrow if a finish room exists and we are not already in it
+        cr, cc = room.grid_pos                                                   # unpacks the current room's (col, row) grid position for vector calculation
+        fr, fc = finish_room.grid_pos                                            # unpacks the finish room's (col, row) grid position for vector calculation
+        dx, dy = fr - cr, fc - cc                                                # computes the raw direction vector from current room to finish room in grid space
+        length = (dx**2 + dy**2) ** 0.5                                          # calculates the vector length to normalise it into a unit direction vector
+        if length > 0:                                                           # guards against division by zero if current room IS the finish room somehow
+            nx, ny   = dx / length, dy / length                                 # normalises the direction vector to unit length for consistent arrow sizing
+            cx_a, cy_a = WIDTH - 60, 60                                         # sets the arrow centre position in the top-right corner of the screen
+            arm      = 24                                                        # half-length of the arrow in pixels — controls how large the pointer appears
+            tip      = (int(cx_a + nx * arm), int(cy_a + ny * arm))             # calculates the arrowhead tip pixel position using the normalised direction
+            tail     = (int(cx_a - nx * arm), int(cy_a - ny * arm))             # calculates the arrow tail pixel position opposite the tip
+            pg.draw.circle(surface, (60, 60, 60), (cx_a, cy_a), arm + 8)        # draws a dark filled circle as the compass background behind the arrow
+            pg.draw.line(surface, (220, 180, 50), tail, tip, 3)                 # draws the arrow shaft as a gold line from tail to tip
+            pg.draw.polygon(surface, (220, 180, 50), [                          # draws a filled triangle arrowhead at the tip pointing in the direction
+                tip,
+                (int(tip[0] - nx*8 + ny*5), int(tip[1] - ny*8 - nx*5)),        # left wing of the arrowhead, perpendicular offset from the shaft direction
+                (int(tip[0] - nx*8 - ny*5), int(tip[1] - ny*8 + nx*5)),        # right wing of the arrowhead, perpendicular offset from the shaft direction
+            ])
+        
     surface.blit(label, (ox + W//2 - label.get_width()//2, oy + H//2 - label.get_height()//2))
 
 

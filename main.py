@@ -77,7 +77,7 @@ class Game:
 
     def draw(self):
         self.screen.fill(DARK_GRAY)
-        draw_room(self.screen, self.rooms[self.current_id], self.walls, self.font)
+        draw_room(self.screen, self.rooms[self.current_id], self.walls, self.font, self.rooms)
         self.wall_sprites.draw(self.screen)
         self.screen.blit(self.player.image, self.player.rect)
         self.transition.draw(self.screen)
