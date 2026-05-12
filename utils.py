@@ -98,7 +98,7 @@ def generate_dungeon(difficulty='easy'):
     return rooms   # returns the completed rooms dict with room 0 always being the start room, ready for Game.new() to consume unchanged
 
 
-def _neighbour(col, row, d):
+def _neighbour(col, row, d):                                #recieves an entered door and returns the door that the next room should be entered from; i.e. N -> S
     return {"north": (col, row-1), "south": (col, row+1),
             "east": (col+1, row), "west": (col-1, row)}[d]
 

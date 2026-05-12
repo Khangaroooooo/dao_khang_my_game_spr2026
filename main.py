@@ -16,7 +16,7 @@ class Game:
         self.font    = pg.font.SysFont(None, 32)
         self.running = True
         self.playing = False
-        self.difficulty = 'easy'   # NEW: stores the player's chosen difficulty; set by Easy/Medium/Hard buttons on the start screen before Game.new() runs
+        self.difficulty = 'easy'   # preset difficulty to easy if none chosen
 
     def new(self):
         self.all_sprites  = pg.sprite.Group()

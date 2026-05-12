@@ -6,7 +6,7 @@ from utils import *                         # imports utility functions and the 
 
 
 vec = pg.math.Vector2                       # aliases pygame's 2D vector class for convenient use throughout the file
-WALL_IMG = pg.image.load(os.path.join(img_folder, 'WallResized.png'))  # loads the wall tile image once at module level so it's shared by all Wall instances
+WALL_IMG = pg.image.load(os.path.join(img_folder, 'WallResized copy.png'))  # loads the wall tile image once at module level so it's shared by all Wall instances
 
 
 class Wall(Sprite):
@@ -48,100 +48,100 @@ def collide_with_walls(sprite, walls, dir):
 # created off of chart made by Claude
 class StateMachine:
     def __init__(self):
-        self.state = None               # holds the current state string; None until start() is called
+        self.state = None                                                       # holds the current state string; None until start() is called
 
     def start(self, initial_state):
-        self.state = initial_state      # sets the initial state when the state machine is first activated
+        self.state = initial_state                                              # sets the initial state when the state machine is first activated
 
     def transition(self, new_state):
-        if self.state != new_state:     # only transitions if the new state is actually different from the current one
-            self.state = new_state      # updates the state to the new value
+        if self.state != new_state:                                             # only transitions if the new state is actually different from the current one
+            self.state = new_state                                              # updates the state to the new value
 
 
 class Player(Sprite):
-    IDLE_COLS, IDLE_ROWS = 2, 4         # the idle spritesheet has 2 columns and 4 rows of 32×32 frames
-    WALK_COLS, WALK_ROWS = 4, 5         # the walk spritesheet has 4 columns and 5 rows of 32×32 frames
-    ANIM_SPEED_MS        = 240          # milliseconds between each animation frame advance
+    IDLE_COLS, IDLE_ROWS = 2, 4                                                 # the idle spritesheet has 2 columns and 4 rows of 32×32 frames
+    WALK_COLS, WALK_ROWS = 4, 5                                                 # the walk spritesheet has 4 columns and 5 rows of 32×32 frames
+    ANIM_SPEED_MS        = 240                                                  # milliseconds between each animation frame advance
 
     def __init__(self, game, x, y):
-        self.groups = game.all_sprites              # the player belongs only to the all_sprites group (not wall_sprites)
-        Sprite.__init__(self, self.groups)          # registers the player sprite with its group via pygame's Sprite base class
-        self.game = game                            # stores a reference to the Game object for accessing walls, dt, etc.
+        self.groups = game.all_sprites                                          # the player belongs only to the all_sprites group (not wall_sprites)
+        Sprite.__init__(self, self.groups)                                      # registers the player sprite with its group via pygame's Sprite base class
+        self.game = game                                                        # stores a reference to the Game object for accessing walls, dt, etc.
 
         #self.speed = PLAYER_SPEED
-        self.vel = vec(0, 0)                        # initialises the player's velocity vector to zero (no movement at start)
-        self.pos = vec(x, y)                        # sets the player's initial pixel position using the provided x, y coordinates
+        self.vel = vec(0, 0)                                                    # initialises the player's velocity vector to zero (no movement at start)
+        self.pos = vec(x, y)                                                    # sets the player's initial pixel position using the provided x, y coordinates
 
-        self.hit_rect = PLAYER_HIT_RECT.copy()      # copies the global 32×32 collision rect so each player has its own independent copy
+        self.hit_rect = PLAYER_HIT_RECT.copy()                                  # copies the global 32×32 collision rect so each player has its own independent copy
 
-        self.gamemode = "topdown"                   # default physics mode; overwritten by the room's gamemode when the game starts
-        self.grounded = False                       # tracks whether the player is standing on solid ground (only relevant in platformer mode)
+        self.gamemode = "topdown"                                               # default physics mode; overwritten by the room's gamemode when the game starts
+        self.grounded = False                                                   # tracks whether the player is standing on solid ground (only relevant in platformer mode)
 
         # State machine
-        self.state_machine = StateMachine()         # creates the finite state machine that tracks idle vs. moving states
-        self.state_machine.start("idle")            # sets the initial animation state to idle
+        self.state_machine = StateMachine()                                     # creates the finite state machine that tracks idle vs. moving states
+        self.state_machine.start("idle")                                        # sets the initial animation state to idle
 
-        self.moving = False                         # boolean flag mirroring state_machine.state for quick animation checks
+        self.moving = False                                                     # boolean flag mirroring state_machine.state for quick animation checks
 
         # Current direction — controls which walk frame set is shown.
         # Change this to "Up", "Down", "Left", or "Right" at any time.
-        self.dir = "Down"                           # initial facing direction; determines which walk animation row is played
+        self.dir = "Down"                                                       # initial facing direction; determines which walk animation row is played
 
         # Animation state
-        self.last_update   = 0                      # timestamp (ms) of the last animation frame advance
-        self.current_frame = 0                      # index of the current frame within the active animation sequence
+        self.last_update   = 0                                                  # timestamp (ms) of the last animation frame advance
+        self.current_frame = 0                                                  # index of the current frame within the active animation sequence
 
         # Load frames
-        self._load_images()                         # slices all animation frames from the spritesheets and stores them in dicts/lists
+        self._load_images()                                                     # slices all animation frames from the spritesheets and stores them in dicts/lists
 
         # Set initial image
-        self.image = self.idle_frames[0]            # sets the first idle frame as the starting visible image
-        self.rect  = self.image.get_rect()          # creates a pygame.Rect matching the image dimensions for rendering
-        self.hit_rect.center = self.rect.center     # aligns the collision rect's centre to the visual rect's centre
+        self.image = self.idle_frames[0]                                        # sets the first idle frame as the starting visible image
+        self.rect  = self.image.get_rect()                                      # creates a pygame.Rect matching the image dimensions for rendering
+        self.hit_rect.center = self.rect.center                                 # aligns the collision rect's centre to the visual rect's centre
 
-# claude finding a more effective for animating through spritesheet
+# claude finding a more effective for animating through spritesheet; need to understand what happens here
     def _slice_row(self, sheet, row, cols):
         """Return a list of 32×32 surfaces from a single row of a sheet."""
-        frames = []                                             # empty list to collect the sliced frame surfaces
-        for col in range(cols):                                 # iterates over each column index in the specified row
-            surf = pg.Surface((TILESIZE, TILESIZE), pg.SRCALPHA)  # creates a transparent 32×32 surface for this frame
+        frames = []                                                             # empty list to collect the sliced frame surfaces
+        for col in range(cols):                                                 # iterates over each column index in the specified row
+            surf = pg.Surface((TILESIZE, TILESIZE), pg.SRCALPHA)                # creates a transparent 32×32 surface for this frame
             surf.blit(sheet, (0, 0), (col * TILESIZE, row * TILESIZE, TILESIZE, TILESIZE))  # copies the tile region from the sheet onto the surface
-            frames.append(surf)                                 # adds the extracted frame surface to the list
-        return frames                                           # returns all frames from that row as a list
+            frames.append(surf)                                                 # adds the extracted frame surface to the list
+        return frames                                                           # returns all frames from that row as a list
 
     def _slice_sheet(self, path, cols, rows):
         """Return a flat list of all 32×32 surfaces from a sheet (row-major)."""
-        sheet = pg.image.load(path).convert_alpha()            # loads the spritesheet image with per-pixel alpha support
-        frames = []                                            # empty list to collect every frame across all rows
-        for row in range(rows):                                # iterates over each row from top to bottom
-            for col in range(cols):                            # iterates over each column left to right within the row
-                surf = pg.Surface((TILESIZE, TILESIZE), pg.SRCALPHA)  # creates a transparent 32×32 surface for this cell
+        sheet = pg.image.load(path).convert_alpha()                             # loads the spritesheet image with per-pixel alpha support
+        frames = []                                                             # empty list to collect every frame across all rows
+        for row in range(rows):                                                 # iterates over each row from top to bottom
+            for col in range(cols):                                             # iterates over each column left to right within the row
+                surf = pg.Surface((TILESIZE, TILESIZE), pg.SRCALPHA)            # creates a transparent 32×32 surface for this cell
                 surf.blit(sheet, (0, 0), (col * TILESIZE, row * TILESIZE, TILESIZE, TILESIZE))  # blits the tile region from the sheet
-                frames.append(surf)                            # appends the frame to the flat list
-        return frames                                          # returns all frames in row-major order
+                frames.append(surf)                                             # appends the frame to the flat list
+        return frames                                                           # returns all frames in row-major order
 
     def _load_images(self):
-        idle_path = os.path.join(img_folder, 'Idle.png')       # builds the full file path for the idle spritesheet
-        walk_path = os.path.join(img_folder, 'Walk.png')       # builds the full file path for the walk spritesheet
+        idle_path = os.path.join(img_folder, 'Idle.png')                        # builds the full file path for the idle spritesheet
+        walk_path = os.path.join(img_folder, 'Walk.png')                        # builds the full file path for the walk spritesheet
 
         self.idle_frames = self._slice_sheet(idle_path, self.IDLE_COLS, self.IDLE_ROWS)  # slices all idle frames into a flat list
 
-        walk_sheet = pg.image.load(walk_path).convert_alpha()  # loads the walk spritesheet with alpha support for reuse across multiple rows
+        walk_sheet = pg.image.load(walk_path).convert_alpha()                   # loads the walk spritesheet with alpha support for reuse across multiple rows
 
         # Each key matches a possible value of self.dir.
         # Rows are sliced in the order they appear in Walk.png top-to-bottom.
         # "Left" reuses "Right" frames flipped horizontally — no separate row needed.
         self.walk_frames = {
-            "Down":  self._slice_row(walk_sheet, 0, self.WALK_COLS),  # front-facing walk frames from the first row of the walk sheet
-            "Up":    self._slice_row(walk_sheet, 4, self.WALK_COLS),  # back-facing walk frames from the last row of the walk sheet
-            "Right": self._slice_row(walk_sheet, 2, self.WALK_COLS),  # right-facing walk frames from the middle row of the walk sheet
-            "Left":  [pg.transform.flip(f, True, False)               # left-facing frames are the right-facing frames mirrored horizontally
+            "Down":  self._slice_row(walk_sheet, 0, self.WALK_COLS),            # front-facing walk frames from the first row of the walk sheet
+            "Up":    self._slice_row(walk_sheet, 4, self.WALK_COLS),            # back-facing walk frames from the last row of the walk sheet
+            "Right": self._slice_row(walk_sheet, 2, self.WALK_COLS),            # right-facing walk frames from the middle row of the walk sheet
+            "Left":  [pg.transform.flip(f, True, False)                         # left-facing frames are the right-facing frames mirrored horizontally
                       for f in self._slice_row(walk_sheet, 2, self.WALK_COLS)],
         }
 
     def get_keys(self):
         keys = pg.key.get_pressed()            # reads the current state of every keyboard key as a boolean array
-        if keys[pg.K_q]:
+        if keys[pg.K_q]:                       # quits 
             pg.quit()
 
         if self.gamemode == "topdown":         # free 8-direction movement; gravity is disabled
