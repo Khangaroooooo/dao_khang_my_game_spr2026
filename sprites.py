@@ -6,7 +6,7 @@ from utils import *                         # imports utility functions and the 
 
 
 vec = pg.math.Vector2                       # aliases pygame's 2D vector class for convenient use throughout the file
-WALL_IMG = pg.image.load(os.path.join(img_folder, 'WallResized copy.png'))  # loads the wall tile image once at module level so it's shared by all Wall instances
+WALL_IMG = pg.image.load(os.path.join(img_folder, 'WallResized.png'))  # loads the wall tile image once at module level so it's shared by all Wall instances
 
 
 class Wall(Sprite):
