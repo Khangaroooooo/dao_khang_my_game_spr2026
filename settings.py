@@ -12,6 +12,7 @@ TILESIZE = 32                                   # the side length in pixels of o
 PLAYER_SPEED = 280                              # the player's movement speed in pixels per second in both axes
 PLAYER_SPRINT_SPEED = 560                       # just player speed x2
 PLAYER_HIT_RECT = pg.Rect(0, 0, TILESIZE, TILESIZE)  # the base collision rectangle for the player (32×32 pixels, positioned at origin)
+VISION_RADIUS = 250   # px — how far the player can see from their centre
 
 # platformer physics
 # JUMP_SPEED is tuned so the player can reach the north door at the top of the room:
