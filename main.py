@@ -40,36 +40,6 @@ class Game:
         for r in rects:
             Wall(self, r)
 
-    ##########editors note: STRAIGHT OUT OF CLAUDE
-    def _draw_fog(self):
-        # Full-screen dark fog, mostly opaque
-        fog = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
-        fog.fill((0, 0, 0, 210))
-
-        # Light mask: starts fully opaque black everywhere.
-        # We'll carve out the vision circle by painting lower-alpha pixels inward.
-        # BLEND_RGBA_MIN then takes the minimum alpha at each pixel —
-        # wherever the mask is more transparent than the fog, the fog clears too.
-        mask = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
-        mask.fill((0, 0, 0, 255))
-
-        cx, cy = self.player.rect.center
-
-        # Draw concentric rings from edge → centre, each one more transparent.
-        # This creates a soft gradient falloff instead of a harsh hard edge.
-        step = 3
-        for r in range(VISION_RADIUS, 0, -step):
-            alpha = int(255 * (r / VISION_RADIUS))   # 255 at rim → 0 at centre
-            pg.draw.circle(mask, (0, 0, 0, alpha), (cx, cy), r)
-
-        # Final centre dot: fully transparent so the area right around
-        # the player is completely clear.
-        pg.draw.circle(mask, (0, 0, 0, 0), (cx, cy), VISION_RADIUS // 5)
-
-        # Punch the hole: wherever mask alpha < fog alpha, fog alpha is reduced.
-        fog.blit(mask, (0, 0), special_flags=pg.BLEND_RGBA_MIN)
-        self.screen.blit(fog, (0, 0))
-
     def run(self):
         while self.playing:
             self.dt = self.clock.tick(FPS) / 1000
@@ -105,12 +75,41 @@ class Game:
         self.player.vel.y     = 0
         self.player.grounded  = False
 
+    def _draw_fog(self):
+        # Full-screen dark fog, mostly opaque
+        fog = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
+        fog.fill((0, 0, 0, 250))       # last digit determines amt of fog
+
+        # Light mask: starts fully opaque black everywhere.
+        # Concentric circles are painted inward with decreasing alpha to create
+        # a soft gradient falloff instead of a harsh hard-edged circle cutout.
+        mask = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
+        mask.fill((0, 0, 0, 255))
+
+        cx, cy = self.player.rect.center
+
+        step = 3
+        for r in range(VISION_RADIUS, 0, -step):
+            alpha = int(255 * (r / VISION_RADIUS))   # 255 at rim -> 0 at centre
+            pg.draw.circle(mask, (0, 0, 0, alpha), (cx, cy), r)
+
+        # Fully transparent centre so the area right around the player is clear
+        pg.draw.circle(mask, (0, 0, 0, 0), (cx, cy), VISION_RADIUS // 5)
+
+        # BLEND_RGBA_MIN takes min(fog_alpha, mask_alpha) per pixel:
+        #   outside vision  -> mask=255, fog=210 -> min=210 (stays dark)
+        #   gradient edge   -> mask~128, fog=210 -> min~128 (soft halo)
+        #   near player     -> mask=0,   fog=210 -> min=0   (fully clear)
+        fog.blit(mask, (0, 0), special_flags=pg.BLEND_RGBA_MIN)
+        self.screen.blit(fog, (0, 0))
+
     def draw(self):
         self.screen.fill(DARK_GRAY)
-        draw_room(self.screen, self.rooms[self.current_id], self.walls, self.font, self.rooms)
+        draw_room(self.screen, self.rooms[self.current_id], self.walls, self.font)
         self.wall_sprites.draw(self.screen)
         self.screen.blit(self.player.image, self.player.rect)
-        self._draw_fog()
+        self._draw_fog()                                                          # fog drawn after sprites so it covers the room but not the UI
+        draw_compass(self.screen, self.rooms[self.current_id], self.rooms)        # compass drawn after fog so it is never obscured
         self.transition.draw(self.screen)
         pg.display.flip()
 
