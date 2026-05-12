@@ -17,7 +17,7 @@ VISION_RADIUS = 250   # px — how far the player can see from their centre
 # platformer physics
 # JUMP_SPEED is tuned so the player can reach the north door at the top of the room:
 # room interior height = ROOM_ROWS * TILESIZE = 640px; h = v²/(2g) => v = sqrt(2*1800*680) ≈ 1564
-GRAVITY    = 1800                               # px/s²  — downward acceleration applied every frame in platformer mode
+GRAVITY    = 1600                               # px/s²  — downward acceleration applied every frame in platformer mode
 JUMP_SPEED = -1600                              # px/s   — the upward velocity given to the player when they jump (negative = upward in pygame)
 
 #color values

@@ -162,7 +162,7 @@ def draw_room(surface, room, walls, font):
     if "south" in room.exits: pg.draw.rect(surface, FLOOR_COLOR, (hx - gap_px//2, oy+H-wt, gap_px, wt))
     if "west"  in room.exits: pg.draw.rect(surface, FLOOR_COLOR, (ox, vy - gap_px//2, wt, gap_px))
     if "east"  in room.exits: pg.draw.rect(surface, FLOOR_COLOR, (ox+W-wt, vy - gap_px//2, wt, gap_px))
-    label = font.render(room.gamemode, True, (120, 120, 120))
+    label = font.render(room.gamemode, True, (120, 120, 120)) if not room.is_finish else font.render("congrats you found the treasure!", True, (120, 120, 120))
     surface.blit(label, (ox + W//2 - label.get_width()//2, oy + H//2 - label.get_height()//2))
 
 
