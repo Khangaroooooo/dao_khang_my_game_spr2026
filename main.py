@@ -10,6 +10,8 @@ vec = pg.math.Vector2
 class Game:
     def __init__(self):
         pg.init()
+        pg.mixer.init()
+        pg.mixer.music.load("Cave Ambience.mp3")
         self.screen = pg.display.set_mode((WIDTH, HEIGHT), pg.FULLSCREEN)
         pg.display.set_caption(TITLE)
         self.clock   = pg.time.Clock()
@@ -17,6 +19,7 @@ class Game:
         self.running = True
         self.playing = False
         self.difficulty = 'easy'   # preset difficulty to easy if none chosen
+        pg.mixer.music.play(-1)
 
     def new(self):
         self.all_sprites  = pg.sprite.Group()
